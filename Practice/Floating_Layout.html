@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        .container{
+            width: 980px;
+            text-align: center;
+            margin: 10px auto 0;
+        }
+        .leftfix{
+            float: left;
+        }
+        .rightfix{
+            float: right;
+        }
+        .clearfix::after{
+            content: '';
+            display: block;
+            clear: both;
+        }
+        .header{
+            height: 80px;
+        }
+        .box{
+            height: 80px;
+            background-color: beige;
+            line-height: 80px;
+            margin-right: 10px;
+        }
+        .box1{
+            width: 200px;
+        }
+        .box2{
+            width: 540px;
+        }
+        .box3{
+            width: 200px;
+        }
+        .menu{
+            height: 30px;
+            width: 980px;
+            margin-top:10px;
+            background-color: aqua;
+            text-align: center;
+        }
+        .box4,.box5{
+            height: 198px;
+            width: 368px;
+            margin-top: 10px;
+            margin-right: 10px;
+            background-color: red;
+            line-height: 198px;
+            border: 1px solid black;
+        }
+        .box6,.box7,.box8,.box9{
+            height: 198px;
+            width: 178px;
+            margin-top: 10px;
+            margin-right: 10px;
+            background-color: yellow;
+            line-height: 178px;
+            border: 1px solid black;
+        }
+        .box10,.box11,.box12{
+            height: 128px;
+            width: 198px;
+            line-height: 128px;
+            background-color: blue;
+            border: 1px solid black;
+            margin-top: 10px;
+        }
+        .footer{
+            height: 80px;
+            width: 980px;
+            background-color: aquamarine;
+            line-height: 80px;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header clearfix">
+        <div class="box box1 leftfix">box1</div>
+        <div class="box box2 leftfix">box2</div>
+        <div class="box box3 leftfix">box3</div>
+    </div>
+    <div class="menu">menu</div>
+    <div class="content clearfix">
+        <div class="left leftfix">
+            <div class="top clearfix">
+                <div class="box4 leftfix">box4</div>
+                <div class="box5 leftfix">box5</div>
+            </div>
+            <div class="bottom clearfix">
+                <div class="box6 leftfix">box6</div>
+                <div class="box7 leftfix">box7</div>
+                <div class="box8 leftfix">box8</div>
+                <div class="box9 leftfix">box9</div>
+            </div>
+        </div>
+        <div class="right rightfix">
+            <div class="box10 ">box10</div>
+            <div class="box11 ">box11</div>
+            <div class="box12 ">box12</div>
+        </div>
+    </div>
+    <div class="footer">footer</div>
+
+</div>
+</body>
+</html>
