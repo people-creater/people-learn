@@ -73,3 +73,18 @@ ul{
     margin-left: 200px;
     background-color: chartreuse;
 }
+.header_1 .frame .search form{
+    margin-top: 42px;
+    margin-right: 200px;
+}
+.header_1 .frame .search form input{
+    height: 34px;
+    width: 508px;
+    border: red 1px solid;
+}
+.header_1 .frame .search form button{
+    height: 34px;
+    width: 80px;
+    background-color: red;
+    border: none;
+}
