@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>变换原点</title>
+    <style>
+        .box{
+            width: 100px;
+            height: 100px;
+            margin: 100px auto 0;
+            background-color: red;
+        }
+        .box:hover{
+            transform: rotate(45deg) translate(50%,50%);
+            /*默认值为50% 50%*/
+            transform-origin: 50% 50%;
+            /*transform-origin: 0 0;*/
+            /*transform-origin: 100px 100px;*/
+        }
+    </style>
+</head>
+<body>
+<div class="box">盒子</div>
+</body>
+</html>

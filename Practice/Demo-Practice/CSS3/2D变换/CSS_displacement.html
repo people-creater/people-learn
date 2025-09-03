@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>位移</title>
+    <style>
+        .box{
+            width: 100px;
+            height: 100px;
+            background-color: aquamarine;
+        }
+        .box:hover{
+            background-color: blue;
+            transform:translate(50%,50%);
+            /*%参考的自身*/
+        }
+        /*多重变换*/
+        /*transform:translate(50%,50%) scale(0.5) rotate(45deg)*/
+        /*多重变换时，建议将旋转放在最后*/
+    </style>
+</head>
+<body>
+<div class="box">盒子</div>
+</body>
+</html>
