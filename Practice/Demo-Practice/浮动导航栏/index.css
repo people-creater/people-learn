@@ -65,7 +65,7 @@ ul{
 }
 .header_1{
     height: 120px;
-    background-color: aquamarine;
+    /*background-color: aquamarine;*/
 }
 .header_1 .frame .logo .image{
     height: 120px;
@@ -87,4 +87,18 @@ ul{
     width: 80px;
     background-color: red;
     border: none;
+}
+.header_2 .frame .logo{
+    width: 190px;
+    height: 48px;
+    background-color: red;
+    margin-left: 170px;
+    text-align: center;
+    line-height: 48px;
+}
+.header_2 .frame .nav ul a{
+    border: 0;
+    height: 48px;
+    line-height: 48px;
+    font-size: 14px;
 }
