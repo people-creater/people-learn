@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>透视点位置(观察者位置)</title>
+    <style>
+        .outer{
+            width: 200px;
+            height: 200px;
+            border: black solid 1px;
+            margin: 20px auto 0;
+            /*开启3D空间*/
+            transform-style: preserve-3d;
+            /*设置景深*/
+            perspective: 800px;
+            perspective-origin: 50px 50px;
+            /*设置透视点位置*/
+            /*默认位置为50% 50%，指的是开启3D空间后的盒子中心位置*/
+        }
+        .inner{
+            height: 200px;
+            width: 200px;
+            background-color: aquamarine;
+            transform: rotateX(20deg);
+        }
+    </style>
+</head>
+<body>
+<div class="outer">
+    <div class="inner">盒子</div>
+</div>
+</body>
+</html>

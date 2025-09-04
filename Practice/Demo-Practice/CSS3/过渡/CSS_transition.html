@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>过渡</title>
+    <style>
+        .outer{
+            width: 1067px;
+            height: 600px;
+            border: black solid 1px;
+            margin: 100px auto 0;
+            position: relative;
+            overflow: hidden;
+        }
+        img{
+            transform: scale(1);
+            transition: all linear 0.4s;
+        }
+        .outer:hover img{
+            transform: scale(2);
+        }
+        .mask{
+            width: 1067px;
+            height: 600px;
+            background-color: rgba(0, 0, 0, 0);
+            line-height: 400px;
+            text-align: center;
+            font-size: 100px;
+            color: rgb(255, 255, 255);
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            transition: all linear 0.4s;
+        }
+        .outer:hover .mask{
+            background-color: rgba(0, 0, 0, 0.5);
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+<div class="outer">
+        <img src="4234cfe703731efd503fd3865a2e5b2c_6382209280142710324.jpeg" alt="三月七">
+        <div class="mask">三月七</div>
+</div>
+</body>
+</html>
