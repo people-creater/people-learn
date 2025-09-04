@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>动画</title>
+    <style>
+        .outer{
+            width: 800px;
+            height: 200px;
+            margin: 100px auto 0;
+            border: black solid 1px;
+        }
+        @keyframes move {
+            0%{
+            }
+            20%{
+                background-color: #dbff7f;
+            }
+            40%{
+                background-color: #a3ff7f;
+            }
+            60%{
+                background-color: #7fff8a;
+                box-shadow: #017829 0 0 20px;
+            }
+            100%{
+                transform: translate(600px,0) rotate(360deg);
+                border-radius: 50%;
+            }
+        }
+        .outer:hover .inner{
+            animation: move 2s  infinite;
+        }
+        .inner{
+            width: 200px;
+            height: 200px;
+            background-color: rgba(153, 123, 224, 0.5);
+        }
+    </style>
+</head>
+<body>
+<div class="outer">
+    <div class="inner"></div>
+</div>
+</body>
+</html>
