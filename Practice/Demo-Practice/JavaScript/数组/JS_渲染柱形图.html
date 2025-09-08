@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>渲染柱形图</title>
+    <style>
+        .inner{
+            width: 800px;
+            height: 500px;
+            margin: 0 auto;
+            border: 2px solid lightpink;
+            border-top: 0;
+            border-right: 0;
+            display: flex;
+            text-align: center;
+            align-items: flex-end;
+        }
+        .inner div{
+            width: 80px;
+            display: flex;
+            justify-content: space-between;
+            flex-direction: column;
+            background-color: lightpink;
+            margin-left: 40px;
+        }
+        .inner span{
+            margin-bottom: -10px;
+        }
+        h4{
+            margin: 0;
+            padding: 5px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="outer">
+
+</div>
+<script>
+
+    document.write(`<div class="inner">`)
+    for (let i = 0; i < 4; i++) {
+        let num = prompt("请输入数字")
+        document.write(`
+        <div style="height:${num}px">
+            <span>${num}px</span>
+            <h4>${i+1}</h4>
+        </div>`)
+    }
+    
+    document.write(`</div>`)
+</script>
+
+</body>
+</html>
