@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>冒泡排序</title>
+</head>
+<body>
+<script>
+    let arr = [5, 3, 2, 4, 1]
+    for (let i = 0; i < arr.length; i++) {
+        for (let j = 0; j < arr.length - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                let temp = arr[j]
+                arr[j] = arr[j + 1]
+                arr[j + 1] = temp
+            }
+        }
+    }
+    console.log(arr)
+    // arr.sort() 默认
+    // arr.sort(function (a, b) { a-b })  升序
+    // arr.sort(function (a, b) { b-a })  降序
+</script>
+</body>
+</html>

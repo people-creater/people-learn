@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>转换时间案例</title>
+</head>
+<body>
+<script>
+    let second = prompt("请输入秒数")
+    function changeTime(t){
+        let hour = Math.floor(t/3600)
+        let minute = Math.floor(t%3600/60)
+        let second = Math.floor(t%60)
+        hour = hour < 10 ? "0"+hour : hour
+        minute = minute < 10 ? "0"+minute : minute
+        second = second < 10 ? "0"+second : second
+        document.write(`${hour}时${minute}分${second}秒`)
+    }
+    changeTime(second)
+    // 匿名函数 立即执行函数
+    // 第一种写法
+    //     (function (){})()
+    // 第二种写法
+    //     (function (){}())
+</script>
+</body>
+</html>
