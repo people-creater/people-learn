@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>渲染学生信息表案例</title>
+    <style>
+        .box{
+            width: 500px;
+            margin: 0 auto;
+        }
+        table{
+            width: 500px;
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        th{
+            border: 1px solid black;
+            text-align: center;
+        }
+        tr:first-child{
+            background-color: darkgray;
+        }
+    </style>
+</head>
+<body>
+<div class="box">
+    <table>
+        <tr>
+            <th>学号</th>
+            <th>姓名</th>
+            <th>性别</th>
+            <th>年龄</th>
+        </tr>
+        <script>
+            let students = [
+                {
+                    id: 1,
+                    name: '张三',
+                    sex: '男',
+                    age: 18
+                },
+                {
+                    id: 2,
+                    name: '王五',
+                    sex: '女',
+                    age: 19
+                },
+                {
+                    id: 3,
+                    name: '赵六',
+                    sex: '男',
+                    age: 20
+                }
+            ]
+            for(let i=0;i<students.length;i++){
+                document.write(`
+                <tr>
+                    <th>${i+1}</th>
+                    <th>${students[i].name}</th>
+                    <th>${students[i].sex}</th>
+                    <th>${students[i].age}</th>
+                </tr>
+                `)
+            }
+        </script>
+    </table>
+<!--    打印数组元素：-->
+<!--        let arr = [1,2,3,4,5,6,7,8,9,10]-->
+<!--        for(let i in arr){-->
+<!--            document.write(arr[i]+" ")-->
+<!--        }-->
+</div>
+</body>
+</html>
