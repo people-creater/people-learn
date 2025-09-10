@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>导航切换</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-size: 15px;
+            text-align: center;
+            color:  white;
+        }
+        .outer{
+            width: 500px;
+            height: 300px;
+            margin: 0 auto;
+            display: flex;
+            background-color: #7fff8a;
+            flex-wrap: wrap;
+        }
+        .inner{
+            width: 500px;
+            height: 80px;
+            display: flex;
+        }
+        .inner .box{
+            width: calc(60% / 3);
+            height: 80%;
+            background-color: #034219;
+            margin: 10px auto;
+        }
+        .content{
+            width: 500px;
+            height: 200px;
+            margin-top: 20px;
+            background-color: #017829;
+        }
+        .content .item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .content .item{
+            display: none;
+
+        }
+        .item.active{
+            display: block;
+        }
+</style>
+</head>
+<body>
+<div class="outer">
+    <div class="inner">
+        <div class="box active">1</div>
+        <div class="box">2</div>
+        <div class="box">3</div>
+    </div>
+    <div class="content">
+        <div class="item active"><img src="../../image/6cd80b021971118bd9cc2898c07ee4df_6973344653667866582.jpeg" alt=""></div>
+        <div class="item"><img src="../../image/8392880c4afed7ac7ae4904d684ac4ba_1643227478506035655.jpeg" alt=""></div>
+        <div class="item"><img src="../../image/f13199c7e2f42d5a90b5176be89d9a5c_7459863348678752636.jpeg" alt=""></div>
+    </div>
+</div>
+<script>
+    const box = document.querySelectorAll('.box');
+    for(let i = 0; i < box.length; i++){
+        box[i].addEventListener('mouseenter',function (){
+            document.querySelector('.inner .active').classList.remove('active');
+            this.classList.add('active');
+            document.querySelector('.content .active').classList.remove('active');
+            document.querySelector('.item:nth-child('+(i+1)+')').classList.add('active')
+        })
+    }
+</script>
+</body>
+</html>
