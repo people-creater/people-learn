@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>轮播图</title>
+    <style>
+        .outer{
+            width: 500px;
+            height: 300px;
+            margin: 0 auto;
+            border: 1px solid red;
+            position: relative;
+            overflow: hidden;
+            background-color: plum;
+        }
+        .content{
+            width: 500px;
+            height: 250px;
+        }
+        .footer{
+            display: flex;
+        }
+        .footer p{
+            text-align: center;
+            color: black;
+        }
+        .content img{
+            width: 100%;
+            height: 100%;
+        }
+        .footer ul li{
+            display: flex;
+        }
+        /* 添加轮播图样式 */
+        .content {
+            position: relative;
+        }
+        .content img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        .content img.active {
+            opacity: 1;
+        }
+        .footer ul {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .footer ul li {
+            width: 20px;
+            height: 20px;
+            background-color: #ccc;
+            margin: 5px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .footer ul li.active {
+            background-color: #f00;
+        }
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .prev {
+            left: 10px;
+        }
+        .next {
+            right: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="outer">
+    <div class="content">
+        <!-- 添加多张图片 -->
+        <img src="../../image/6cd80b021971118bd9cc2898c07ee4df_6973344653667866582.jpeg" alt="Image 1" class="active">
+        <img src="../../image/8392880c4afed7ac7ae4904d684ac4ba_1643227478506035655.jpeg" alt="Image 2">
+        <img src="../../image/f13199c7e2f42d5a90b5176be89d9a5c_7459863348678752636.jpeg" alt="Image 3">
+    </div>
+    <!-- 添加导航按钮 -->
+    <button class="nav-btn prev">&#10094;</button>
+    <button class="nav-btn next">&#10095;</button>
+    <div class="footer">
+        <p>图片</p>
+        <ul>
+            <li class="active"></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    // 轮播图功能实现
+    document.addEventListener('DOMContentLoaded', function() {
+        const images = document.querySelectorAll('.content img');
+        const dots = document.querySelectorAll('.footer ul li');
+        const prevBtn = document.querySelector('.prev');
+        const nextBtn = document.querySelector('.next');
+        let currentIndex = 0;
+        let autoPlayInterval;
+
+        // 显示指定索引的图片
+        function showImage(index) {
+            // 移除所有图片的active类
+            images.forEach(img => img.classList.remove('active'));
+            // 移除所有指示点的active类
+            dots.forEach(dot => dot.classList.remove('active'));
+            
+            // 为当前图片和指示点添加active类
+            images[index].classList.add('active');
+            dots[index].classList.add('active');
+            
+            currentIndex = index;
+        }
+
+        // 下一张图片
+        function nextImage() {
+            let nextIndex = (currentIndex + 1) % images.length;
+            showImage(nextIndex);
+        }
+
+        // 上一张图片
+        function prevImage() {
+            let prevIndex = (currentIndex - 1 + images.length) % images.length;
+            showImage(prevIndex);
+        }
+
+        // 自动播放
+        function startAutoPlay() {
+            autoPlayInterval = setInterval(nextImage, 3000);
+        }
+
+        // 停止自动播放
+        function stopAutoPlay() {
+            clearInterval(autoPlayInterval);
+        }
+
+        // 为指示点添加点击事件
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                showImage(index);
+                stopAutoPlay();
+                startAutoPlay();
+            });
+        });
+
+        // 为导航按钮添加点击事件
+        nextBtn.addEventListener('click', () => {
+            nextImage();
+            stopAutoPlay();
+            startAutoPlay();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            prevImage();
+            stopAutoPlay();
+            startAutoPlay();
+        });
+
+        // 鼠标悬停时停止自动播放
+        const outer = document.querySelector('.outer');
+        outer.addEventListener('mouseenter', stopAutoPlay);
+        outer.addEventListener('mouseleave', startAutoPlay);
+
+        // 初始化自动播放
+        startAutoPlay();
+    });
+</script>
+</body>
+</html>
