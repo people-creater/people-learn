@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>电梯导航栏</title>
+    <style>
+        body{
+            height: 3000px;
+        }
+        div{
+            width: 100px;
+            height: 100px;
+            background-color: red;
+            margin: 100px auto;
+            opacity: 0;
+            transition: all 1s;
+            position: fixed;
+        }
+    </style>
+    <script>
+        window.addEventListener('load',function (){
+            const div = document.querySelector('div');
+            window.addEventListener('scroll',function (){
+                div.style.opacity = window.scrollY >= 100 ? 1 : 0;
+            })
+        })
+    </script>
+</head>
+<body>
+<div></div>
+</body>
+</html>
