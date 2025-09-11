@@ -55,9 +55,9 @@
 <body>
 <div class="outer">
     <div class="inner">
-        <div class="box active">1</div>
-        <div class="box">2</div>
-        <div class="box">3</div>
+        <div class="box active" data-id = '0'>1</div>
+        <div class="box" data-id = '1'>2</div>
+        <div class="box" data-id = '2'>3</div>
     </div>
     <div class="content">
         <div class="item active"><img src="../../image/6cd80b021971118bd9cc2898c07ee4df_6973344653667866582.jpeg" alt=""></div>
@@ -66,16 +66,26 @@
     </div>
 </div>
 <script>
-    const box = document.querySelectorAll('.box');
-    for(let i = 0; i < box.length; i++){
-        box[i].addEventListener('mouseenter',function (){
-            document.querySelector('.inner .active').classList.remove('active');
-            this.classList.add('active');
-            document.querySelector('.content .active').classList.remove('active');
-            document.querySelector('.item:nth-child('+(i+1)+')').classList.add('active')
-        })
-    }
-    // 导航切换
+    // 鼠标进入导航切换使用循环
+    // const box = document.querySelectorAll('.box');
+    // for(let i = 0; i < box.length; i++){
+    //     box[i].addEventListener('mouseenter',function (){
+    //         document.querySelector('.inner .active').classList.remove('active');
+    //         this.classList.add('active');
+    //         document.querySelector('.content .active').classList.remove('active');
+    //         document.querySelector('.item:nth-child('+(i+1)+')').classList.add('active')
+    //     })
+    // }
+    // 导航切换使用事件委托
+    const outer = document.querySelector('.outer');
+    outer.addEventListener('click',function (e){
+        document.querySelector('.inner .active').classList.remove('active')
+        if(e.target.tagName === 'DIV'){
+            e.target.classList.add('active')
+        }
+        document.querySelector('.content .active').classList.remove('active')
+        document.querySelector('.item:nth-child('+(+(e.target.dataset.id)+1)+')').classList.add('active')
+    })
 </script>
 </body>
 </html>
