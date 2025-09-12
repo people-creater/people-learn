@@ -28,6 +28,17 @@
        form button{
            color: white;
        }
+       .title{
+           width: 800px;
+           height: 50px;
+           background-color: #b7dbf6;
+           margin-bottom: 20px;
+           padding-top: 20px;
+       }
+       .title span{
+           padding-left: 10px;
+           padding-right: 10px;
+       }
        .content{
            width: 800px;
            height: 500px;
@@ -36,6 +47,11 @@
        }
        table{
            width: 800px;
+       }
+       th,td{
+           border: black 1px solid;
+       }
+       thead{
            background-color: #91d5fd;
        }
     </style>
@@ -44,14 +60,14 @@
 <div class="header">
     <h1>新增学员</h1>
     <form>
-        姓名：<input type="text" style="width: 50px">
-        年龄：<input type="number" style="width: 40px">
-        性别：<select style="width: 70px">
+        姓名：<input type="text" class="uname" style="width: 50px">
+        年龄：<input type="number" class="age" style="width: 40px">
+        性别：<select class="gender" style="width: 70px">
             <option name="gender">男</option>
             <option name="gender">女</option>
         </select>
-        薪资：<input type="number" style="width: 70px">
-        就业城市：<select name="city" id="" style="width: 50px">
+        薪资：<input class="salary" type="number" style="width: 70px">
+        就业城市：<select class="city" name="city" id="" style="width: 50px">
             <option name="city">北京</option>
             <option name="city">上海</option>
             <option name="city">广州</option>
@@ -62,7 +78,9 @@
 </div>
 <div class="content">
     <h1>就业榜</h1>
+    <div class="title">共有<span></span>条数据</div>
     <table>
+        <thead>
         <tr>
             <th>学号</th>
             <th>姓名</th>
@@ -71,10 +89,96 @@
             <th>就业城市</th>
             <th>操作</th>
         </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
     </table>
 </div>
 <script>
-    // 后面再写
+    // 获取 tbody 元素
+    const tbody = document.querySelector('tbody');
+    const form = document.querySelector('form');
+
+    // 初始化数据
+    const initData = [
+        {
+            id: 1,
+            uname: '张三',
+            age: 18,
+            gender: '男',
+            salary: 5000,
+            city: '北京'
+        },
+    ];
+
+    // 保存初始数据到 localStorage
+    localStorage.setItem('students', JSON.stringify(initData));
+    let students = JSON.parse(localStorage.getItem('students')) || [];
+
+    // 渲染数据函数
+    function renderStudents() {
+        const arr = students.map(function (item) {
+            return `
+        <tr>
+            <td>${item.id}</td>
+            <td>${item.uname}</td>
+            <td>${item.age}</td>
+            <td>${item.salary}</td>
+            <td>${item.city}</td>
+            <td>
+                <button class="del">删除</button>
+                <button class="edit">修改</button>
+            </td>
+        </tr>
+        `;
+        });
+
+        tbody.innerHTML = arr.join('');
+        document.querySelector('.title span').innerHTML = students.length;
+    }
+
+    // 初始渲染
+    renderStudents();
+
+    // 录入功能
+    const btn = document.querySelector('button');
+    btn.onclick = function (e) {
+        // 阻止表单默认提交行为
+        e.preventDefault();
+
+        const uname = document.querySelector('.uname').value;
+        const age = document.querySelector('.age').value;
+        const gender = document.querySelector('.gender').value;
+        const salary = document.querySelector('.salary').value;
+        const city = document.querySelector('.city').value;
+
+        // 验证输入
+        if (!uname || !age || !salary) {
+            alert('请填写完整信息');
+            return;
+        }
+
+        // 添加新学生
+        students.push({
+            id: students.length + 1,
+            uname,
+            age,
+            gender,
+            salary,
+            city
+        });
+
+        // 保存到 localStorage
+        localStorage.setItem('students', JSON.stringify(students));
+
+        // 重新渲染表格
+        renderStudents();
+
+        // 清空表单
+        form.reset();
+    };
+
 </script>
 </body>
 </html>
