@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>函数动态参数</title>
+</head>
+<body>
+<script>
+    function getSum(){
+        let sum = 0;
+        for(let i=0;i<arguments.length;i++){
+            sum += arguments[i];//arguments是函数的动态参数
+        }
+    }
+    // function getSum(...args){
+    //     let sum = 0;
+    //     for(let i=0;i<args.length;i++){
+    //         sum += args[i];
+    //     }
+    //     return sum;
+    // }args是函数的剩余参数
+    getSum(1,2,3,4,5);
+    //...是展开运算符，可以把数组展开成多个参数
+</script>
+</body>
+</html>
