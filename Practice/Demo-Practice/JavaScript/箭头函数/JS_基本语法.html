@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>基本语法</title>
+</head>
+<body>
+<script>
+    // function fn(){
+    //
+    // }函数声明
+    // const sum = () =>{
+    //
+    // }箭头函数
+    // 只有一个参数时，可以省略小括号
+    // 只有一行的函数体，可以省略大括号和return
+    // 加括号的函数体返回字面表达式
+    const getSum = (...arr) =>{
+        let sum = 0;
+        for(let i = 0; i < arr.length; i++){
+            sum+=arr[i];
+        }
+        return sum;
+    }
+    const result = getSum(1,2,3,4,5);
+    //箭头函数的this 是上一层作用域的this 指向
+    //解构赋值
+    const [a,b,c]=[0,1,2]
+
+
+
+    //使用分号的两种情况
+    //立即执行函数
+    // (function (){})()
+    // ((function (){}))
+    //数组
+    // const arr = 'he';
+    // [1,2,3].map(function (item){
+    //     console.log(item)
+    // })
+
+
+    const pc = ['海尔','联想','小米']
+    const [hr,lx,mi]= ['海尔','联想','小米'] ;
+    pc.map(function (item){
+        console.log(item)
+    })
+
+    function getValue(){
+        return [100,60];
+    }
+    const [max,min]= getValue();
+    console.log((max))
+
+</script>
+</body>
+</html>
