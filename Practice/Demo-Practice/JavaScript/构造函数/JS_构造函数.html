@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>构造函数</title>
+</head>
+<body>
+<script>
+
+    //命名以大写字母开头
+    //只能通过new关键字调用
+
+
+
+    // function Person(name, age) {
+    //     this.name = name;
+    //     this.age = age;
+    // }
+    // const p1 = new Person('张三', 18);
+
+
+
+
+    //执行nwe调用函数的行为被称为实例化
+    //实例化构造函数时没有参数时可以省略
+    //不需要写return返回值即为新创建的对象
+    //new Object() new Data()  也是实例化构造函数
+
+
+
+    // function Goods(name,price){
+    //     this.name = name;
+    //     this.price = price;
+    // }
+    // const mi = new Goods('小米', 1999);
+    // console.log(mi);
+    // const huawei = new Goods('华为', 2999);
+    // console.log(huawei);
+    // const oppo = new Goods('oppo', 1999);
+    // console.log(oppo);
+
+
+
+    //实例化执行过程
+    //创建新的空对象
+    //构造函数this 指向新对象
+    //执行构造函数代码，修改this，添加新的属性
+    //返回新对象
+
+
+    //通过构造函数创建的对象称为实例对象
+    //构造函数创建的实例对象彼此独立互不影响
+    //实例对象中的属性和方法称为实例成员，构造函数中的属性和方法称为静态成员
+
+
+
+    //内置构造函数        基本数据类型也有专门的构造函数被称为包装类型
+    //引用类型有Object String Number Boolean Array Date RegExp Error
+
+
+    //Object.keys(obj)    Object.values(obj)
+    const o = {name: '张三', age: 18}
+    console.log(Object.keys(o))//返回数组
+
+    // const oo = {}
+    // console.log(Object.assign(oo.o))//对象的拷贝
+    // 使用场景，给对象添加属性
+
+
+
+    //Array
+    //forEach 遍历数组
+    //map     迭代数组    返回新数组
+    //filter  过滤数组    返回新数组
+    //reduce  累计器
+    //arr,reduce(function(上一次值,当前值){}，初始值)
+    // array.reduce( (pre, cur) => pre + cur , 0)//不写初始值，默认为数组的第一个元素
+    //
+    //
+    // const arr = [
+    //     {
+    //         name:'小米',
+    //         price:1999
+    //     },
+    //     {
+    //         name:'华为',
+    //         price:2999
+    //     },
+    // ]
+    // const huawei = arr.find(item=>item.name==='华为')
+    // console.log(huawei)
+</script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>基本语法</title>
+</head>
+<body>
+<script>
+
+
+    //解构的语法
+    // const { uname , age}={uname:'张三',age:18}
+    //必须保证属性名与变量名一致
+
+
+    //对象解构的变量名可以重新改名
+    // const {uname:username,age}={uname:'张三',age:18}
+    //旧变量名:新变量名
+
+
+    //数组对象解构
+    // const pig=[{
+    //     uname:'张三',
+    //     age:18
+    // }]
+    // const [{uname,age}]=pig
+
+
+    //多级对象解构
+    // const {name,family:{mother,father}}=pig
+    //外层是数组包[]，外层是对象包{}
+
+
+    const msg = {
+        "code":200,
+        "msg":"success",
+        "data":[
+            {
+                "id":1,
+                "name":"张三"
+            },
+            {
+                "id":2,
+                "name":"张三"
+            }
+        ]
+    }
+    function render({data:newData}){
+        console.log(newData)
+    }
+    render(msg)
+</script>
+</body>
+</html>
