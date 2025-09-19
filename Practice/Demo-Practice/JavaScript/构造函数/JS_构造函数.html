@@ -89,6 +89,91 @@
     // ]
     // const huawei = arr.find(item=>item.name==='华为')
     // console.log(huawei)
+
+
+
+    //JS实现面向对象需要构造函数，但会浪费内存
+
+    //原型
+    //构造函数通过分配的函数是所有对象所共享的
+    //每一个构造函数都有一个prototype属性，指向另一个对象，即为原型对象
+    //可以把不变的方法直接定义在prototype对象上，这样所有对象的实列就可以共享这些方法
+    //构造函数和原型对象中的this都指向实例化的对象
+
+    function Star(uname,age){
+        //公共的属性写在构造函数中
+        this.uname = uname;
+        this.age = age;
+        // this.sing = function(){
+        //     console.log('sing')
+        // }
+    }
+    const lilei = new Star('lilei',18)
+    //公共的方法写在原型对象中
+    Star.prototype.sing = function(){
+        console.log('sing')
+    }
+    lilei.sing()
+
+
+    const arr = [1,2,3,4,5]
+    Array.prototype.max = function(){
+        return Math.max(...arr)
+    }
+    console.log(arr.max())
+
+
+    //constructor属性
+    //每个原型对象都有constructor属性，指向构造函数，简单理解，指向我的爸爸，我是有爸爸的孩子
+    console.log(Star.prototype.constructor === Star)
+    //使用场景
+    //如果有多个对象的方法 我们可以给原型对象采取对象形式赋值
+
+
+    function Stars(uname){
+        this.uname = uname;
+    }
+    Stars.prototype = {
+        sing:function (){
+            console.log('sing')
+        },
+        dance:function (){
+            console.log('dance')
+        }
+    }
+    console.log(Stars.prototype.constructor)//指向Object
+
+
+    //但是会覆盖构造函数原型对象原来的内容,这样修改后的原型对象constructor就不再指向当前构造函数
+    //此时我们可以在修改后的原型对象中天降一个constructor指向原来的构造函数
+
+    // function Stars(uname){
+    //     this.uname = uname;
+    // }
+    // Stars.prototype = {
+    //     constructor:Stars,
+    //     sing:function (){
+    //         console.log('sing')
+    //     },
+    //     dance:function (){
+    //         console.log('dance')
+    //     }
+    // }
+    // console.log(Stars.prototype.constructor)//指向Stars
+
+
+
+    //对象原型 _proto_ 已弃用
+
+    // 替代 obj.__proto__ 的读取操作
+    const prototype = Object.getPrototypeOf(obj);
+
+    // 替代 obj.__proto__ = prototype 的赋值操作
+    Object.setPrototypeOf(obj, prototype);
+
+    // 创建一个以指定对象为原型的新对象
+    const newObj = Object.create(prototype);
+
 </script>
 </body>
 </html>
