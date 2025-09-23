@@ -23,6 +23,7 @@ export default {
     }
   }
 }
+// 组件
 </script>
 <style>
 .App{
