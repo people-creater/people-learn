@@ -1,6 +1,8 @@
 <template>
   <div class="App">
-    <Header :title="MyTitle" @changeTitle="handleTitle"></Header>
+    <Header :title="MyTitle" @changeTitle="handleTitle"
+            v-model="textValue"
+    ></Header>
     <Main></Main>
     <Footer></Footer>
   </div>
@@ -14,7 +16,8 @@ export default {
   components: {Main, Header,Footer},
   data() {
     return {
-      MyTitle: '这是标题'
+      MyTitle: '这是标题',
+      textValue:''
     }
   },
   methods: {
