@@ -1,30 +1,12 @@
 <template>
   <div class="App">
-    <Header :title="MyTitle" @changeTitle="handleTitle"
-            v-model="textValue"
-    ></Header>
-    <Main></Main>
-    <Footer></Footer>
+    <router-view></router-view>
   </div>
 </template>
 <script>
-import Header from './components/Header.vue'
-import Main from './components/Main.vue'
-import Footer from './components/Footer.vue'
+
 export default {
-  // 声明组件
-  components: {Main, Header,Footer},
-  data() {
-    return {
-      MyTitle: '这是标题',
-      textValue:''
-    }
-  },
-  methods: {
-    handleTitle(newTitle){
-      this.MyTitle = newTitle
-    }
-  }
+
 }
 // 组件
 </script>
