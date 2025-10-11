@@ -1,14 +1,21 @@
 <script setup>
 import { User } from "@element-plus/icons-vue";
-import {useRouter} from "vue-router";
+import { useRouter } from "vue-router";
 
-const router = useRouter()
+const router = useRouter();
 
 const handleLogin = () => {
-  // 跳转到登录页面
-  router.push('/login')
-}
+  // 添加一个类来触发滑动动画
+  const appContent = document.getElementById('appContent');
+  if (appContent) {
+    appContent.classList.add('slide-left');
+  }
 
+  // 延迟跳转以允许动画完成
+  setTimeout(() => {
+    router.push('/login');
+  }, 300);
+};
 </script>
 
 <template>
@@ -45,8 +52,8 @@ const handleLogin = () => {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background-color: #409eff;
-  color: white;
+  background-color: #ffffff;
+  color: #884bd8;
   border: none;
   cursor: pointer;
   font-size: 14px;
@@ -58,7 +65,7 @@ const handleLogin = () => {
 }
 
 .login-button:hover {
-  background-color: #a45ce3;
+  background-color: #c1c1c1;
   transform: scale(1.05);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
