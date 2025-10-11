@@ -1,5 +1,4 @@
 <template>
-  <BasicLayout>
     <el-row class="login-page">
       <el-col :span="12" class="bg"></el-col>
       <el-col :span="6" :offset="3" class="form">
@@ -43,13 +42,11 @@
         </el-card>
       </el-col>
     </el-row>
-  </BasicLayout>
 </template>
 
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import BasicLayout from '../../components/layout/BasicLayout.vue'
 
 // 使用路由
 const router = useRouter()
@@ -105,12 +102,12 @@ const registerFormRef = ref(null)
 
 // 处理登录
 const handleLogin = () => {
-  router.push('/app')
+  router.push('/')
 }
 
 // 处理注册
 const handleRegister = () => {
-  router.push('/app')
+  router.push('/')
 }
 
 // 返回登录页面的函数

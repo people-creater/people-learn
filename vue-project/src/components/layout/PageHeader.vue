@@ -1,9 +1,12 @@
 <script setup>
 import { User } from "@element-plus/icons-vue";
+import {useRouter} from "vue-router";
+
+const router = useRouter()
 
 const handleLogin = () => {
   // 跳转到登录页面
-  window.location.href = '/login'
+  router.push('/login')
 }
 
 </script>

@@ -6,18 +6,13 @@ const routes = [
     {
         path: '/',
         name: 'Home',
-        redirect: '/login'
+        component:()=>import('../views/index.vue')
     },
     {
         path: '/login',
         name: 'Login',
         component: () => import('../views/login/LoginPage.vue')
     },
-    {
-        path:'/app',
-        name:'App',
-        component:App
-    }
 ]
 
 const router = createRouter({
