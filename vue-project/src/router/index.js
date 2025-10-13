@@ -1,12 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import App from '../App.vue'
 
 // 默认路由配置
 const routes = [
     {
         path: '/',
         name: 'Home',
-        component:()=>import('../views/index.vue')
+        component:()=> import('../App.vue')
     },
     {
         path: '/login',

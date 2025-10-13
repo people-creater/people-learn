@@ -58,7 +58,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import {ref, reactive, onMounted, onBeforeMount} from 'vue'
 import { useRouter } from 'vue-router'
 
 // 使用路由
@@ -218,6 +218,11 @@ const returnToLogin = () => {
   registerForm.rePassword = ''
 }
 
+const handleResize = () => {
+  // 重新初始化球元素
+  initBalls()
+}
+
 // 组件挂载后初始化球元素
 onMounted(() => {
   // 等待DOM渲染完成后再初始化
@@ -227,6 +232,10 @@ onMounted(() => {
 
   // 窗口大小改变时重新初始化
   window.addEventListener('resize', initBalls)
+})
+
+onBeforeMount(() => {
+  window.removeEventListener('resize', initBalls)
 })
 </script>
 

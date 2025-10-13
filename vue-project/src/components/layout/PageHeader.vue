@@ -5,13 +5,6 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 const handleLogin = () => {
-  // 添加一个类来触发滑动动画
-  const appContent = document.getElementById('appContent');
-  if (appContent) {
-    appContent.classList.add('slide-left');
-  }
-
-  // 延迟跳转以允许动画完成
   setTimeout(() => {
     router.push('/login');
   }, 300);

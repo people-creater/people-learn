@@ -1,197 +1,424 @@
 <script setup>
-import PageHeader from './components/layout/PageHeader.vue'
+
 </script>
 
 <template>
-  <div class="app-page">
-    <PageHeader />
-    <main class="app-content-wrapper">
-      <transition name="slide" mode="out-in">
-        <router-view class="app-content" id="appContent"></router-view>
-      </transition>
-    </main>
-  </div>
+  <nav>
+
+    <div class = 'logo'><span>Site Logo</span></div>
+    <div class = 'menu-btn'><span>Menu</span></div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-cards">
+      <div class="card" id="hero-card-1">
+        <div class="card-title">
+          <span>Plan</span>
+          <span>01</span>
+        </div>
+        <div class="card-title">
+          <span>01</span>
+          <span>Plan</span>
+        </div>
+      </div>
+      <div class="card" id="hero-card-2">
+        <div class="card-title">
+          <span>Plan</span>
+          <span>02</span>
+        </div>
+        <div class="card-title">
+          <span>02</span>
+          <span>Plan</span>
+        </div>
+      </div>
+      <div class="card" id="hero-card-3">
+        <div class="card-title">
+          <span>Plan</span>
+          <span>03</span>
+        </div>
+        <div class="card-title">
+          <span>03</span>
+          <span>Plan</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="about">
+    <h1>Keep scrolling - we'll keep adding content</h1>
+  </section>
+
+  <section class="services">
+    <div class="services-header">
+      <h1>Services</h1>
+    </div>
+  </section>
+
+  <section class="cards">
+    <div class="cards-container">
+      <div class="card" id="card-1">
+        <div class="card-wrapper">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="card-title">
+                <span>Plan</span>
+                <span>01</span>
+              </div>
+              <div class="card-title">
+                <span>01</span>
+                <span>Plan</span>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="card-title">
+                <span>Plan</span>
+                <span>01</span>
+              </div>
+              <div class="card-copy">
+                <p>work</p>
+                <p>work</p>
+                <p>work</p>
+                <p>work</p>
+                <p>work</p>
+                <p>work</p>
+              </div>
+              <div class="card-title">
+                <span>01</span>
+                <span>Plan</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" id="card-2">
+        <div class="card-wrapper">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="card-title">
+                <span>Plan</span>
+                <span>02</span>
+              </div>
+              <div class="card-title">
+                <span>02</span>
+                <span>Plan</span>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="card-title">
+                <span>Plan</span>
+                <span>02</span>
+              </div>
+              <div class="card-copy">
+                <p>work</p>
+                <p>work</p>
+                <p>work</p>
+                <p>work</p>
+                <p>work</p>
+                <p>work</p>
+              </div>
+              <div class="card-title">
+                <span>02</span>
+                <span>Plan</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card" id="card-3">
+        <div class="card-wrapper">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <div class="card-title">
+                <span>Plan</span>
+                <span>03</span>
+              </div>
+              <div class="card-title">
+                <span>03</span>
+                <span>Plan</span>
+              </div>
+            </div>
+            <div class="flip-card-back">
+              <div class="card-title">
+                <span>Plan</span>
+                <span>03</span>
+              </div>
+              <div class="card-copy">
+                <p>work</p>
+                <p>work</p>
+                <p>work</p>
+                <p>work</p>
+                <p>work</p>
+                <p>work</p>
+              </div>
+              <div class="card-title">
+                <span>03</span>
+                <span>Plan</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="outro">
+    <h1>A working demo of this example can be found</h1>
+  </section>
 </template>
 
-<style>
-.gradient-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  pointer-events: none; /* 确保渐变层不拦截鼠标事件 */
-}
-</style>
-
 <style scoped>
-.app-page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.app-content-wrapper {
+nav{
+  position: fixed;
+  width: 100vw;
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 2;
+}
+
+.logo span,
+.menu-btn span{
+  font-size: 0.8rem;
+  padding: 0.75rem;
+  border-radius: 0.25rem;
+}
+
+.logo span{
+  background-color: var(--daik);
+  color: var(--light);
+}
+
+.menu-btn span{
+  background-color: var(--light);
+  color: var(--daik);
+}
+
+section{
+  position: relative;
+  width: 100vw;
+  height: 100svh;
+  padding: 2rem;
+  overflow: hidden;
+}
+
+.hero{
+  background-color: var(--light);
+  color: var(--daik);
+}
+
+.about,
+.outro{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--daik);
+  color: var(--light);
+}
+
+.hero-cards{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  width: 35%;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.hero-cards .card{
   flex: 1;
   position: relative;
-  overflow: hidden;
-}
-
-.app-content {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  aspect-ratio: 5/7;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  overflow: hidden;
-  min-height: calc(100vh - 60px);
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-/* 向左滑动过渡效果 */
-.slide-enter-active,
-.slide-leave-active {
-  transition: transform 0.5s ease, opacity 0.5s ease;
-  position: absolute;
-  top: 0;
+.card-title{
   width: 100%;
+  display: flex;
+  justify-content: space-between;
 }
 
-.slide-enter-from {
-  transform: translateX(100%);
-  opacity: 0;
+.hero-cards .card span{
+  font-size: 0.7rem;
 }
 
-.slide-enter-to {
-  transform: translateX(0);
-  opacity: 1;
+.hero-cards .card#hero-card-1{
+  background-color: var(--accent-1);
+  transform-origin: top right;
+  z-index: 2;
+}
+.hero-cards .card#hero-card-2{
+  background-color: var(--accent-2);
+  z-index: 1;
+}
+.hero-cards .card#hero-card-3{
+  background-color: var(--accent-3);
+  transform-origin: top left;
+  z-index: 0;
 }
 
-.slide-leave-from {
-  transform: translateX(0);
-  opacity: 1;
+.services{
+  padding: 8rem 2rem;
 }
 
-.slide-leave-to {
-  transform: translateX(-100%);
-  opacity: 0;
-}
-
-.content-wrapper {
-  text-align: center;
-  color: white;
+.services-header{
   position: relative;
-  z-index: 10;
+  width: 100%;
+  text-align: center;
+  transform: translateY(400%);
+  will-change: transform;
 }
 
-.content-wrapper h1 {
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
+.cards{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100svh;
+  display: flex;
+  justify-content: center;
+  z-index: -1;
+  background-color: var(--light);
+  color: var(--daik);
 }
 
-.content-wrapper p {
-  font-size: 1.2rem;
-  opacity: 0.9;
+.cards-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 75%;
+  height: 100%;
+  gap: 4rem;
 }
-</style>
 
-<script>
-export default {
-  mounted() {
-    this.initMouseMoveEffect();
-  },
-  methods: {
-    initMouseMoveEffect() {
-      // 使用事件委托，监听路由视图中的appContent
-      const appContentWrapper = document.querySelector('.app-content-wrapper');
+.cards-container .card{
+  flex: 1;
+  position: relative;
+  aspect-ratio: 5/7;
+  perspective: 1000px;
+}
 
-      if (appContentWrapper) {
-        let moveTimer;
+.cards-container .card .card-wrapper{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  animation: floating 2s ease-in-out infinite;
+}
 
-        const handleMouseMove = (e) => {
-          // 清除之前的定时器
-          clearTimeout(moveTimer);
-
-          // 查找当前的appContent元素（可能随路由变化而变化）
-          const appContent = document.getElementById('appContent');
-          if (!appContent) return;
-
-          const rect = appContent.getBoundingClientRect();
-          const x = ((e.clientX - rect.left) / rect.width) * 100;
-          const y = ((e.clientY - rect.top) / rect.height) * 100;
-
-          // 直接设置背景样式而不是使用CSS变量
-          this.updateGradientOverlays(appContent, x, y);
-          appContent.classList.add('mouse-move');
-
-          // 一段时间后淡出效果
-          moveTimer = setTimeout(() => {
-            appContent.classList.remove('mouse-move');
-          }, 2000);
-        };
-
-        const handleMouseLeave = () => {
-          const appContent = document.getElementById('appContent');
-          if (appContent) {
-            appContent.classList.remove('mouse-move');
-          }
-        };
-
-        appContentWrapper.addEventListener('mousemove', handleMouseMove);
-        appContentWrapper.addEventListener('mouseleave', handleMouseLeave);
-      }
-    },
-
-    updateGradientOverlays(appContent, x, y) {
-      // 确保渐变覆盖层存在
-      let gradient1 = appContent.querySelector('.gradient-1');
-      let gradient2 = appContent.querySelector('.gradient-2');
-      let gradient3 = appContent.querySelector('.gradient-3');
-
-      // 如果不存在则创建
-      if (!gradient1) {
-        gradient1 = document.createElement('div');
-        gradient1.className = 'gradient-overlay gradient-1';
-        appContent.appendChild(gradient1);
-      }
-
-      if (!gradient2) {
-        gradient2 = document.createElement('div');
-        gradient2.className = 'gradient-overlay gradient-2';
-        appContent.appendChild(gradient2);
-      }
-
-      if (!gradient3) {
-        gradient3 = document.createElement('div');
-        gradient3.className = 'gradient-overlay gradient-3';
-        appContent.appendChild(gradient3);
-      }
-
-      // 更新渐变背景
-      gradient1.style.background = `radial-gradient(
-        circle at ${x}% ${y}%,
-        rgba(102, 126, 234, 0.4) 0%,
-        transparent 30%
-      )`;
-
-      gradient2.style.background = `radial-gradient(
-        circle at ${x}% ${y}%,
-        rgba(118, 75, 162, 0.4) 0%,
-        transparent 30%
-      )`;
-
-      gradient3.style.background = `radial-gradient(
-        circle at ${x}% ${y}%,
-        rgba(255, 255, 255, 0.2) 0%,
-        transparent 30%
-      )`;
-
-      // 显示渐变层
-      gradient1.style.opacity = '1';
-      gradient2.style.opacity = '1';
-      gradient3.style.opacity = '1';
-    }
+@keyframes floating {
+  0% {
+    transform: translate(-50%, -50%);
+  }
+  50% {
+    transform: translate(-50%, -55%);
+  }
+  100% {
+    transform: translate(-50%, -50%);
   }
 }
-</script>
+
+#card-1 .card-wrapper{
+  animation-delay: 0s;
+}
+#card-2 .card-wrapper{
+  animation-delay: 0.25s;
+}
+#card-3 .card-wrapper{
+  animation-delay: 0.5s;
+}
+
+.flip-card-inner{
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.flip-card-front,
+.flip-card-back{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 1rem;
+}
+
+.flip-card-front{
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#card-1 .flip-card-front{
+  background-color: var(--accent-1);
+}
+#card-2 .flip-card-front{
+  background-color: var(--accent-2);
+}
+#card-3 .flip-card-front{
+  background-color: var(--accent-3);
+}
+
+.flip-card-back{
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2rem;
+  background-color: #fff;
+  transform: rotateY(180deg);
+}
+
+.card-copy{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.card-copy p{
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+  background-color: var(--light2);
+  border-radius: 0.25rem;
+}
+
+#card-1{
+  transform: translateX(100%) translateY(-100%) rotate(-5deg) scale(0.25);
+  z-index: 2;
+}
+#card-2{
+  transform: translateX(0%) translateY(-100%) rotate(0deg) scale(0.25);
+  z-index: 1;
+}
+#card-3{
+  transform: translateX(-100%) translateY(-100%) rotate(5deg) scale(0.25);
+  z-index: 0;
+}
+
+/*.cards-container .card{
+  opacity: 1;
+}*/
+</style>
