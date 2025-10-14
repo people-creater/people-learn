@@ -10,6 +10,33 @@ const smoothStep = (p) => p * p * (3 - 2 * p);
 // 创建响应式引用
 let lenis = null;
 
+// 提取通用的动画逻辑
+const updateCardPosition = (cardId, progress, index) => {
+  const delay = index * 0.9;
+  const cardProgress = gsap.utils.clamp(0, 1, (progress - delay * 0.1) / (1 - delay * 0.1));
+
+  const y = gsap.utils.interpolate("0%", "250%", smoothStep(cardProgress));
+  const scale = gsap.utils.interpolate(1, 0.75, smoothStep(cardProgress));
+
+  let x = "0%";
+  let rotation = 0;
+
+  if (index === 0) {
+    x = gsap.utils.interpolate("0%", "90%", smoothStep(cardProgress));
+    rotation = gsap.utils.interpolate(0, -15, smoothStep(cardProgress));
+  } else if (index === 2) {
+    x = gsap.utils.interpolate("0%", "-90%", smoothStep(cardProgress));
+    rotation = gsap.utils.interpolate(0, 15, smoothStep(cardProgress));
+  }
+
+  gsap.set(cardId, {
+    y,
+    x,
+    rotation,
+    scale,
+  });
+};
+
 onMounted(() => {
   // 初始化 ScrollTrigger 插件
   gsap.registerPlugin(ScrollTrigger);
@@ -24,242 +51,109 @@ onMounted(() => {
 
   gsap.ticker.lagSmoothing(0);
 
-  const smoothScroll = (p) => p * p * (3 - 2 * p);
+  // 处理 hero 区域的动画
+  const heroScrollTrigger = ScrollTrigger.create({
+    trigger: ".hero",
+    start: "top top",
+    end: "75% top",
+    scrub: 1,
+    onUpdate: (self) => {
+      const progress = self.progress;
 
-  // 确保DOM元素存在后再创建 ScrollTrigger
-  if (document.querySelector(".hero")) {
-    ScrollTrigger.create({
-      trigger: ".hero",
-      start: "top top",
-      end: "75% top",
-      scrub: 1,
-      onUpdate: (self) => {
-        const progress = self.progress;
+      const heroCardsContainerOpacity = gsap.utils.interpolate(1, 0.5, smoothStep(progress));
+      gsap.set(".hero-cards", {
+        opacity: heroCardsContainerOpacity
+      });
 
-        const heroCardsContainerOpacity = gsap.utils.interpolate(
-            1,
-            0.5,
-            smoothScroll(progress)
-        );
+      ["#hero-card-1", "#hero-card-2", "#hero-card-3"].forEach((cardId, index) => {
+        updateCardPosition(cardId, progress, index);
+      });
+    }
+  });
 
-        gsap.set(".hero-cards", {
-          opacity: heroCardsContainerOpacity
+  // 处理 services 区域的动画
+  const servicesScrollTrigger = ScrollTrigger.create({
+    trigger: ".services",
+    start: "top top",
+    end: `+=${window.innerHeight * 4}px`,
+    pin: ".services",
+    pinSpacing: true,
+  });
+
+  // 处理 services-header 和 cards 动画
+  const servicesHeaderCardTrigger = ScrollTrigger.create({
+    trigger: ".services",
+    start: "top bottom",
+    end: `+=${window.innerHeight * 4}px`,
+    onUpdate: (self) => {
+      const progress = self.progress;
+      const headerProgress = gsap.utils.clamp(0, 1, progress / 0.9);
+      const headerY = gsap.utils.interpolate("400%", "0%", smoothStep(headerProgress));
+      gsap.set(".services-header", {
+        y: headerY,
+      });
+
+      ["#card-1", "#card-2", "#card-3"].forEach((cardId, index) => {
+        const cardProgress = gsap.utils.clamp(0, 1, (progress - index * 0.5 * 0.1) / 0.9);
+        const innerCard = document.querySelector(`${cardId} .flip-card-inner`);
+
+        let y, scale, opacity, x, rotate, rotationY;
+
+        if (cardProgress < 0.4) {
+          const normalizedProgress = cardProgress / 0.4;
+          y = gsap.utils.interpolate("-100%", "-50%", smoothStep(normalizedProgress));
+          scale = gsap.utils.interpolate(0.25, 0.75, smoothStep(normalizedProgress));
+          opacity = smoothStep(normalizedProgress);
+        } else if (cardProgress < 0.6) {
+          const normalizedProgress = (cardProgress - 0.4) / 0.2;
+          y = gsap.utils.interpolate("-50%", "0%", smoothStep(normalizedProgress));
+          scale = gsap.utils.interpolate(0.75, 1, smoothStep(normalizedProgress));
+          opacity = 1;
+        } else {
+          y = "0%";
+          scale = 1;
+          opacity = 1;
+        }
+
+        if (cardProgress < 0.6) {
+          x = index === 0 ? "100%" : index === 1 ? "0%" : "-100%";
+          rotate = index === 0 ? -5 : index === 1 ? 0 : 5;
+          rotationY = 0;
+        } else if (cardProgress < 1) {
+          const normalizedProgress = (cardProgress - 0.6) / 0.4;
+          x = gsap.utils.interpolate(index === 0 ? "100%" : index === 1 ? "0%" : "-100%", "0%", smoothStep(normalizedProgress));
+          rotate = gsap.utils.interpolate(index === 0 ? -5 : index === 1 ? 0 : 5, 0, smoothStep(normalizedProgress));
+          rotationY = smoothStep(normalizedProgress) * 180;
+        } else {
+          x = "0%";
+          rotate = 0;
+          rotationY = 180;
+        }
+
+        gsap.set(cardId, {
+          y,
+          x,
+          rotate,
+          scale,
+          opacity,
         });
 
-        ["#hero-card-1", "#hero-card-2", "#hero-card-3"].forEach(
-            (cardId, index) => {
-              const delay = index * 0.9;
-              const cardProgress = gsap.utils.clamp(
-                  0,
-                  1,
-                  (progress - delay * 0.1) / (1 - delay * 0.1)
-              );
-
-              const y = gsap.utils.interpolate(
-                  "0%",
-                  "250%",
-                  smoothScroll(cardProgress)
-              );
-
-              const scale = gsap.utils.interpolate(
-                  1,
-                  0.75,
-                  smoothScroll(cardProgress)
-              );
-
-              let x = "0%";
-              let rotation = 0;
-              if (index === 0) {
-                x = gsap.utils.interpolate("0%", "90%", smoothScroll(cardProgress));
-                rotation = gsap.utils.interpolate(
-                    0,
-                    -15,
-                    smoothScroll(cardProgress)
-                );
-              } else if (index === 2) {
-                x = gsap.utils.interpolate("0%", "-90%", smoothScroll(cardProgress));
-                rotation = gsap.utils.interpolate(
-                    0,
-                    15,
-                    smoothScroll(cardProgress)
-                );
-              }
-
-              gsap.set(cardId, {
-                y,
-                x,
-                rotation,
-                scale,
-              });
-            }
-        );
-      }
-    });
-  }
-
-  if (document.querySelector(".services")) {
-    ScrollTrigger.create({
-      trigger: ".services",
-      start: "top top",
-      end: `+=${window.innerHeight * 4}px`,
-      pin: ".services",
-      pinSpacing: true,
-    });
-
-    ScrollTrigger.create({
-      trigger: ".services",
-      start: "top top",
-      end: `+=${window.innerHeight * 4}px`,
-      onLeave: () => {
-        const servicesSection = document.querySelector(".services");
-        const servicesRect = servicesSection.getBoundingClientRect();
-        // 使用现代API替代已废弃的pageXOffset
-        const servicesTop = window.scrollX + servicesRect.top;
-
-        gsap.set(".cards", {
-          position: "absolute",
-          top: servicesTop,
-          left: 0,
-          width: "100vw",
-          height: "100vh",
-        });
-      },
-      onLeaveBack: () => {
-        gsap.set(".cards", {
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100vw",
-          height: "100vh",
-        });
-      },
-    });
-
-    ScrollTrigger.create({
-      trigger: ".services",
-      start: "top bottom",
-      end: `+=${window.innerHeight * 4}px`,
-      onUpdate: (self) => {
-        const progress = self.progress;
-        const headerProgress = gsap.utils.clamp(0, 1, progress / 0.9);
-        const headerY = gsap.utils.interpolate(
-            "400%",
-            "0%",
-            smoothStep(headerProgress)
-        );
-
-        gsap.set(".services-header", {
-          y: headerY,
-        });
-
-        ["#card-1", "#card-2", "#card-3"].forEach((cardId, index) => {
-          const delay = index * 0.5;
-          const cardProgress = gsap.utils.clamp(
-              0,
-              1,
-              (progress - delay * 0.1) / (0.9 - delay * 0.1)
-          );
-
-          const innerCard = document.querySelector(`${cardId} .flip-card-inner`);
-
-          let y;
-          if (cardProgress < 0.4) {
-            const normalizedProgress = cardProgress / 0.4;
-            y = gsap.utils.interpolate(
-                "-100%",
-                "-50%",
-                smoothStep(normalizedProgress)
-            );
-          } else if (cardProgress < 0.6) {
-            const normalizedProgress = (cardProgress - 0.4) / 0.2;
-            y = gsap.utils.interpolate(
-                "-50%",
-                "0%",
-                smoothStep(normalizedProgress)
-            );
-          } else {
-            y = "0%";
-          }
-
-          let scale;
-          if (cardProgress < 0.4) {
-            const normalizedProgress = cardProgress / 0.4;
-            scale = gsap.utils.interpolate(
-                0.25,
-                0.75,
-                smoothStep(normalizedProgress)
-            );
-          } else if (cardProgress < 0.6) {
-            const normalizedProgress = (cardProgress - 0.4) / 0.2;
-            scale = gsap.utils.interpolate(
-                0.75,
-                1,
-                smoothStep(normalizedProgress)
-            );
-          } else {
-            scale = 1;
-          }
-
-          let opacity;
-          if (cardProgress < 0.2) {
-            const normalizedProgress = cardProgress / 0.2;
-            opacity = smoothStep(normalizedProgress);
-          } else {
-            opacity = 1;
-          }
-
-          let x, rotate, rotationY;
-          if (cardProgress < 0.6) {
-            x = index === 0 ? "100%" : index === 1 ? "0%" : "-100%";
-            rotate = index === 0 ? -5 : index === 1 ? 0 : 5;
-            rotationY = 0;
-          } else if (cardProgress < 1) {
-            const normalizedProgress = (cardProgress - 0.6) / 0.4;
-            x = gsap.utils.interpolate(
-                index === 0 ? "100%" : index === 1 ? "0%" : "-100%",
-                "0%",
-                smoothStep(normalizedProgress)
-            );
-            rotate = gsap.utils.interpolate(
-                index === 0 ? -5 : index === 1 ? 0 : 5,
-                0,
-                smoothStep(normalizedProgress)
-            );
-            rotationY = smoothStep(normalizedProgress) * 180;
-          } else {
-            x = "0%";
-            rotate = 0;
-            rotationY = 180;
-          }
-
-          gsap.set(cardId, {
-            y,
-            x,
-            rotate,
-            scale,
-            opacity,
+        if (innerCard) {
+          gsap.set(innerCard, {
+            rotationY,
           });
+        }
+      });
+    }
+  });
 
-          if (innerCard) {
-            gsap.set(innerCard, {
-              rotationY,
-            });
-          }
-        });
-      },
-    });
-  }
-});
-
-// 清理函数
-onUnmounted(() => {
-  if (lenis) {
-    lenis.destroy();
-  }
-  ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+  // 清理函数
+  onUnmounted(() => {
+    lenis?.destroy();
+    ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+  });
 });
 </script>
-
 
 <template>
   <nav>
