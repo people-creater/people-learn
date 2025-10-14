@@ -2,7 +2,36 @@
 import gsap from 'gsap';
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from 'lenis';
-import { onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted,ref } from 'vue';
+import {useRouter} from 'vue-router';
+
+const isMenuOpen = ref(false);
+const router = useRouter();
+const navigateTo = (path) => {
+  router.push(path);
+  toggleMenu();
+}
+
+const toggleMenu = () => {
+  isMenuOpen.value = !isMenuOpen.value;
+  const menu = document.querySelector(".menu");
+
+  if (isMenuOpen.value) {//展开菜单
+    gsap.to(menu,{
+      duration:0.5,
+      height: '200px',
+      opacity: 1,
+      ease: "power2.out",
+    })
+  }else{//收起菜单
+    gsap.to(menu,{
+      duration:0.5,
+      height: '0px',
+      opacity: 0,
+      ease: "power2.in",
+    })
+  }
+};
 
 // 实现 smoothStep 函数
 const smoothStep = (p) => p * p * (3 - 2 * p);
@@ -158,7 +187,17 @@ onMounted(() => {
 <template>
   <nav>
     <div class = 'logo'><span>Site Logo</span></div>
-    <div class = 'menu-btn'><span>Menu</span></div>
+    <div class = 'menu-btn' @click="toggleMenu">
+      <a href="#">Menu</a>
+    </div>
+    <div class = 'menu' v-show="isMenuOpen">
+      <ul>
+        <li @click = "navigateTo('/')"><a href="#">Home</a></li>
+        <li @click = "navigateTo('/About')"><a href="#">About</a></li>
+        <li><a href="#">Services</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
   </nav>
 
   <section class="hero">
@@ -336,7 +375,7 @@ nav{
 }
 
 .logo span,
-.menu-btn span{
+.menu-btn a{
   font-size: 0.8rem;
   padding: 0.75rem;
   border-radius: 0.25rem;
@@ -347,9 +386,45 @@ nav{
   color: var(--light);
 }
 
-.menu-btn span{
+.menu-btn a{
   background-color: var(--light);
   color: var(--daik);
+}
+
+.menu{
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 100%;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  border-radius: 0.25rem;
+  background-color: var(--light);
+  transition: height 0.5s ease, opacity 0.5s ease;
+}
+
+.menu ul {
+  list-style: none;
+  padding: 1rem;
+  color: var(--daik);
+  margin: 0;
+}
+
+.menu li {
+  padding: 0.5rem 0;
+}
+
+.menu li a {
+  font-size: 0.8rem;
+  padding: 0.75rem;
+  border-radius: 0.25rem;
+  text-decoration: none;
+  color: var(--daik);
+}
+
+.menu li a:hover {
+  color: var(--accent-1);
 }
 
 section{
