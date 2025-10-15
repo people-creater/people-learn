@@ -21,42 +21,42 @@ const handleClick = () => {
     <div class="menu-content">
       <div class="menu-items">
         <div class="col-lg">
-          <div class="menu-preview-img"><img src="" alt=""></div>
+          <div class="menu-preview-img"><img src="../src/assets/nature-1920.jpg" alt=""></div>
         </div>
         <div class="col-sm">
           <div class="menu-links">
             <div class="link">
-              <a href="#" data-img="">work</a>
+              <a href="#" data-img="../src/assets/nature-1920.jpg">work</a>
             </div>
             <div class="link">
-              <a href="#" data-img="">work</a>
+              <a href="#" data-img="../src/assets/nature-1920.jpg">work</a>
             </div>
             <div class="link">
-              <a href="#" data-img="">work</a>
+              <a href="#" data-img="../src/assets/nature-1920.jpg">work</a>
             </div>
             <div class="link">
-              <a href="#" data-img="">work</a>
+              <a href="#" data-img="../src/assets/nature-1920.jpg">work</a>
             </div>
           </div>
           <div class="menu-socials">
             <div class="social">
               <a href="#">
-                <img src="" alt="">Work
+                <img src="../src/assets/nature-1920.jpg" alt="">Work
               </a>
             </div>
             <div class="social">
               <a href="#">
-                <img src="" alt="">Work
+                <img src="../src/assets/nature-1920.jpg" alt="">Work
               </a>
             </div>
             <div class="social">
               <a href="#">
-                <img src="" alt="">Work
+                <img src="../src/assets/nature-1920.jpg" alt="">Work
               </a>
             </div>
             <div class="social">
               <a href="#">
-                <img src="" alt="">Work
+                <img src="../src/assets/nature-1920.jpg" alt="">Work
               </a>
             </div>
             </div>
@@ -77,7 +77,7 @@ const handleClick = () => {
   <div class="container">
     <div class="hero">
       <div class="hero-img">
-        <img src="" alt=""></img>
+        <img src="../src/assets/nature-1920.jpg" alt="">
         <h1>Void Construct</h1>
       </div>
     </div>
@@ -247,5 +247,73 @@ nav{
 .menu-footer a:hover::after{
   transform: scaleX(1);
   transform-origin: left;
+}
+
+.container{
+  position: relative;
+  width: 100%;
+  height: 100%;
+  will-change: tranform;
+  transform-origin: right top;
+}
+
+.hero{
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.hero-img{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: -1;
+}
+
+.hero h1{
+  width: 80%;
+}
+
+.menu-toggle p#menu-close{
+  opacity: 0;
+  transform: translateX(-5px) translateY(10px) rotate(5deg);
+}
+
+.link a,
+.social a{
+  transform: translateY(120%) ;
+  opacity: 0.25;
+}
+
+.menu-content{
+  transform: translateX(-100px) translateY(-100px) scaleX(1.5) rotate(-15deg);
+  opacity: 0.25;
+}
+
+.menu-overlay{
+  clip-path: polygon(0 0, 100% 0, 100% 0%, 0% 0%);
+}
+
+@media (max-width: 900px){
+  .hero h1{
+    width: 100%;
+    font-size: 4rem;
+    letter-spacing: 0;
+  }
+
+  .menu-items .col-lg{
+    display: none;
+  }
+
+  .link a::after:hover,
+  .social a::after:hover,
+  .menu-footer a::after:hover{
+    display: none;
+  }
 }
 </style>

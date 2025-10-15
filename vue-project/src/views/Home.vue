@@ -207,9 +207,9 @@ onMounted(() => {
     </div>
     <div class = 'menu' v-show="isMenuOpen">
       <ul>
-        <li @click = "navigateTo('/')"><a href="javascript:void(0)">Home</a></li>
+        <li @click = "navigateTo('/')"><a href="javascript:void(0)">App</a></li>
         <li @click = handleAboutClick()><a href="#">About</a></li>
-        <li><a href="#">Services</a></li>
+        <li @click = "navigateTo('/home')"><a href="#">home</a></li>
         <li><a href="#">Contact</a></li>
       </ul>
     </div>
