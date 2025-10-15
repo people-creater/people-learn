@@ -1,10 +1,39 @@
 <script setup>
 import {useRouter} from 'vue-router';
+import gsap from 'gsap';
+// import { onMounted, onUnmounted,ref } from 'vue';
 
 const router = useRouter();
 const handleClick = () => {
   router.push('/about');
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const container = document.querySelector('.container');
+  const menuToggle = document.querySelector('.menu-toggle');
+  const menuOverlay = document.querySelector('.menu-overlay');
+  const menuContent = document.querySelector('.menu-content');
+  const menuPreviewImg = document.querySelector('.menu-preview-img');
+  const menuLinks = document.querySelectorAll('.link a');
+
+  let isOpen = false;
+  let isAnimating = false;
+
+  menuToggle.addEventListener('click', () => {
+    if (isOpen) openMenu();
+    else closeMenu();
+  })
+
+  function cleanupPreviewImages(){
+    const previewImages = menuPreviewImg.querySelectorAll('img');
+    if(previewImages.length>3){
+      for (let i = 0; i < previewImages.length -3; i++){
+        menuPreviewImg.removeChild(previewImages[i])
+      }
+    }
+  }
+})
+
 </script>
 
 <template>
@@ -82,12 +111,12 @@ const handleClick = () => {
       </div>
     </div>
   </div>
-  <div>
-    <div>
-      <a @click = handleClick() href="#">跳转</a>
-    </div>
-    <router-view></router-view>
-  </div>
+<!--  <div>-->
+<!--    <div>-->
+<!--      <a @click = handleClick() href="#">跳转</a>-->
+<!--    </div>-->
+<!--    <router-view></router-view>-->
+<!--  </div>-->
 </template>
 
 <style scoped>
