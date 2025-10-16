@@ -1,186 +1,171 @@
 <script setup>
-// import {useRouter} from 'vue-router';
+import { ref } from 'vue';
 import gsap from 'gsap';
-// import { onMounted, onUnmounted,ref } from 'vue';
 
-// const router = useRouter();
-// const handleClick = () => {
-//   router.push('/about');
-// }
+const isOpen = ref(false);
+const isAnimating = ref(false);
 
-document.addEventListener('DOMContentLoaded', () => {
-  const container = document.querySelector('.container');
-  const menuToggle = document.querySelector('.menu-toggle');
-  const menuOverlay = document.querySelector('.menu-overlay');
-  const menuContent = document.querySelector('.menu-content');
-  const menuPreviewImg = document.querySelector('.menu-preview-img');
-  const menuLinks = document.querySelectorAll('.link a');
+const container = ref(null);
+const menuToggle = ref(null);
+const menuOverlay = ref(null);
+const menuContent = ref(null);
+const menuPreviewImg = ref(null);
+const menuLinks = ref([]);
 
-  let isOpen = false;
-  let isAnimating = false;
+const openMenu = () => {
+  if (isAnimating.value || isOpen.value) return;
+  isAnimating.value = true;
 
-  menuToggle.addEventListener('click', () => {
-    if (isOpen) openMenu();
-    else closeMenu();
-  })
+  gsap.to(container.value, {
+    rotation: 10,
+    x: 300,
+    y: 450,
+    scale: 1.5,
+    duration: 1.25,
+    ease: "power4.inOut",
+  });
 
-  function cleanupPreviewImages(){
-    const previewImages = menuPreviewImg.querySelectorAll('img');
-    if(previewImages.length>3){
-      for (let i = 0; i < previewImages.length -3; i++){
-        menuPreviewImg.removeChild(previewImages[i])
-      }
+  animateMenuToggle(true);
+
+  gsap.to(menuContent.value, {
+    rotation: 0,
+    x: 0,
+    y: 0,
+    scale: 1,
+    opacity: 1,
+    duration: 1.25,
+    ease: "power4.inOut",
+  });
+
+  gsap.to([".link a", ".social a"], {
+    y: "0%",
+    opacity: 1,
+    duration: 1,
+    delay: 0.75,
+    stagger: 0.1,
+    ease: "power3.out",
+  });
+
+  gsap.to(menuOverlay.value, {
+    clipPath: "polygon(0% 0%, 100% 0%, 100% 175%, 0% 100%)",
+    duration: 1.25,
+    ease: "power4.inOut",
+    onComplete: () => {
+      isAnimating.value = false;
+      isOpen.value = true;
+    },
+  });
+};
+
+const closeMenu = () => {
+  if (isAnimating.value || !isOpen.value) return;
+  isAnimating.value = true;
+
+  gsap.to(container.value, {
+    rotation: 0,
+    x: 0,
+    y: 0,
+    scale: 1,
+    duration: 1.25,
+    ease: "power4.inOut",
+  });
+
+  animateMenuToggle(false);
+
+  gsap.to(menuContent.value, {
+    rotation: -15,
+    x: -100,
+    y: -100,
+    scale: 1.5,
+    opacity: 0.25,
+    duration: 1.25,
+    ease: "power4.inOut",
+  });
+
+  gsap.to(menuOverlay.value, {
+    clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)",
+    duration: 1.25,
+    ease: "power4.inOut",
+    onComplete: () => {
+      isOpen.value = false;
+      isAnimating.value = false;
+      gsap.set([".link a", ".social a"], {
+        y: "120%",
+      });
+      resetPreviewImage();
+    },
+  });
+};
+
+const animateMenuToggle = (isOpening) => {
+  const open = document.querySelector('p#menu-open');
+  const close = document.querySelector('p#menu-close');
+
+  gsap.to(isOpening ? open : close, {
+    x: isOpening ? -5 : 5,
+    y: isOpening ? -10 : 10,
+    rotation: isOpening ? -5 : 5,
+    opacity: 0,
+    delay: 0.25,
+    ease: "power2.out",
+  });
+
+  gsap.to(isOpening ? close : open, {
+    x: 0,
+    y: 0,
+    rotation: 0,
+    opacity: 1,
+    delay: 0.5,
+    duration: 0.5,
+    ease: "power2.out",
+  });
+};
+
+const cleanupPreviewImages = () => {
+  const previewImages = menuPreviewImg.value.querySelectorAll('img');
+  if (previewImages.length > 3) {
+    for (let i = 0; i < previewImages.length - 3; i++) {
+      menuPreviewImg.value.removeChild(previewImages[i]);
     }
   }
+};
 
-  function resetPreviewImage(){
-    menuPreviewImg.innerHTML = '';
-    const defaultImg = document.createElement('img');
-    defaultImg.src = '../src/assets/nature-1920.jpg';
-    menuPreviewImg.appendChild(defaultImg);
-  }
+const resetPreviewImage = () => {
+  menuPreviewImg.value.innerHTML = '';
+  const defaultImg = document.createElement('img');
+  defaultImg.src = '../src/assets/nature-1920.jpg';
+  menuPreviewImg.value.appendChild(defaultImg);
+};
 
-  function animateMenuToggle(isOpening){
-    const open = document.querySelector('p#menu-open');
-    const close = document.querySelector('p#menu-close');
+menuLinks.value.forEach(link => {
+  link.addEventListener('mouseover', () => {
+    if (!isOpen.value || isAnimating.value) return;
 
-    gsap.to(isOpening ? open : close ,{
-      x: isOpening ? -5 : 5,
-      y: isOpening ? -10 : 10,
-      rotation: isOpening ? -5 : 5,
-      opacity: 0 ,
-      delay : 0.25,
-      ease: "power2.out",
-    })
+    const imgSrc = link.getAttribute("data-img");
+    if (!imgSrc) return;
 
-    gsap.to(isOpening ? close : open ,{
-      x: 0,
-      y: 0,
-      rotation: 0,
-      opacity: 1 ,
-      delay : 0.5,
-      duration: 0.5,
-      ease: "power2.out",
-    })
-  }
+    const existingImages = menuPreviewImg.value.querySelectorAll('img');
+    if (existingImages.length > 0 && existingImages[existingImages.length - 1].src.endsWith(imgSrc)) {
+      return;
+    }
 
-  function openMenu(){
-    if(isAnimating || isOpen) return;
-    isAnimating = true;
+    const newPreviewImg = document.createElement('img');
+    newPreviewImg.src = imgSrc;
+    newPreviewImg.style.opacity = "0";
+    newPreviewImg.style.transform = "scale(1.25) rotate(10deg)";
 
-    gsap.to(container,{
-      rotation: 10,
-      x: 300,
-      y: 450,
-      scale: 1.5,
-      duration: 1.25,
-      ease: "power4.inOut",
-    })
+    menuPreviewImg.value.appendChild(newPreviewImg);
+    cleanupPreviewImages();
 
-    animateMenuToggle(true);
-
-    gsap.to(menuContent,{
-      rotation: 0,
-      x: 0,
-      y: 0,
-      scale: 1,
+    gsap.to(newPreviewImg, {
       opacity: 1,
-      duration: 1.25,
-      ease: "power4.inOut",
-    })
-
-    gsap.to([".link a",".social a"],{
-      y: "0%",
-      opacity: 1,
-      duration: 1,
-      delay: 0.75,
-      stagger: 0.1,
-      ease: "power3.out",
-    })
-
-    gsap.to(menuOverlay,{
-      clipPath:"polygon:0% 0%,100% 0%,100% 175%,0% 100%)",
-      duration: 1.25,
-      ease: "power4.inOut",
-      onComplete: () => {
-        isAnimating = false;
-        isOpen = true;
-      }
-    })
-  }
-
-  function closeMenu(){
-    if(isAnimating || !isOpen) return;
-    isAnimating = true;
-
-    gsap.to(container,{
-      rotation: 0,
-      x: 0,
-      y: 0,
       scale: 1,
-      duration: 1.25,
-      ease: "power4.inOut",
-    })
-
-    animateMenuToggle(false);
-
-    gsap.to(menuContent,{
-      rotation: -15,
-      x: -100,
-      y: -100,
-      scale: 1.5,
-      opacity: 0.25,
-      duration: 1.25,
-      ease: "power4.inOut",
-    })
-
-    gsap.to(menuOverlay,{
-      clipPath:"polygon:0% 0%,100% 0%,100% 0%,0% 0%)",
-      duration: 1.25,
-      ease: "power4.inOut",
-      onComplete: () => {
-        isOpen = false;
-        isAnimating = false;
-        gsap.set([".link a",".social a"],{
-          y:"120%",
-        });
-        resetPreviewImage();
-      }
-    })
-  }
-  menuLinks.forEach(link => {
-    link.addEventListener('mouseover', () => {
-      if(!isOpen || isAnimating) return;
-
-      const imgSrc = link.getAttribute("data-img")
-      if(!imgSrc) return;
-
-      const previewImages = menuPreviewImg.createElement('img');
-      if(
-          previewImages.length > 0 &&
-          previewImages[previewImages.length -1].src.endsWith(imgSrc)
-      )
-        return;
-
-      const newPreviewImg = document.createElement('img');
-      newPreviewImg.src = imgSrc;
-      newPreviewImg.style.opacity = "0";
-      newPreviewImg.style.transform = "scale(1.25) rotate(10deg)";
-
-      menuPreviewImg.appendChild(newPreviewImg);
-      cleanupPreviewImages()
-
-      gsap.to(newPreviewImg,{
-        opacity: 1,
-        scale: 1,
-        rotate: 0,
-        duration: 0.75,
-        ease: "power2.out",
-      })
-    })
-  })
-})
-
+      rotate: 0,
+      duration: 0.75,
+      ease: "power2.out",
+    });
+  });
+});
 </script>
 
 <template>
@@ -188,19 +173,22 @@ document.addEventListener('DOMContentLoaded', () => {
     <div class="logo">
       <a href="#">Void Construct</a>
     </div>
-    <div class="menu-toggle">
-      <p id = "menu-open">Menu</p>
-      <p id = "menu-close">Close</p>
+    <div class="menu-toggle" ref="menuToggle" @click="isOpen ? closeMenu() : openMenu()">
+      <p id="menu-open">Menu</p>
+      <p id="menu-close">Close</p>
     </div>
   </nav>
-  <div class = 'menu-overlay'>
-    <div class="menu-content">
+
+  <div class="menu-overlay" ref="menuOverlay">
+    <div class="menu-content" ref="menuContent">
       <div class="menu-items">
         <div class="col-lg">
-          <div class="menu-preview-img"><img src="../src/assets/nature-1920.jpg" alt=""></div>
+          <div class="menu-preview-img" ref="menuPreviewImg">
+            <img src="../src/assets/nature-1920.jpg" alt="">
+          </div>
         </div>
         <div class="col-sm">
-          <div class="menu-links">
+          <div class="menu-links" ref="menuLinks">
             <div class="link">
               <a href="#" data-img="../src/assets/nature-1920.jpg">work</a>
             </div>
@@ -235,8 +223,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <img src="../src/assets/nature-1920.jpg" alt="">Work
               </a>
             </div>
-            </div>
           </div>
+        </div>
       </div>
       <div class="menu-footer">
         <div class="col-lg">
@@ -250,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
   </div>
 
-  <div class="container">
+  <div class="container" ref="container">
     <div class="hero">
       <div class="hero-img">
         <img src="../src/assets/nature-1920.jpg" alt="">
@@ -258,22 +246,16 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
     </div>
   </div>
-<!--  <div>-->
-<!--    <div>-->
-<!--      <a @click = handleClick() href="#">跳转</a>-->
-<!--    </div>-->
-<!--    <router-view></router-view>-->
-<!--  </div>-->
 </template>
 
 <style scoped>
-img{
+img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-nav{
+nav {
   position: fixed;
   width: 100%;
   padding: 2.5rem;
@@ -283,24 +265,24 @@ nav{
   z-index: 2;
 }
 
-.logo a{
+.logo a {
   font-weight: 600;
 }
 
-.menu-toggle{
+.menu-toggle {
   position: relative;
   width: 3rem;
   height: 1.5rem;
   cursor: pointer;
 }
 
-.menu-toggle p{
+.menu-toggle p {
   position: absolute;
   transform-origin: top left;
-  will-change: transform,opacity;
+  will-change: transform, opacity;
 }
 
-.menu-overlay{
+.menu-overlay {
   position: fixed;
   width: 100vw;
   height: 100vh;
@@ -308,7 +290,7 @@ nav{
   z-index: 1;
 }
 
-.menu-content{
+.menu-content {
   position: relative;
   width: 100%;
   height: 100%;
@@ -316,44 +298,44 @@ nav{
   justify-content: center;
   align-items: center;
   transform-origin: left bottom;
-  will-change: transform,opacity;
+  will-change: transform, opacity;
 }
 
 .menu-items,
-.menu-footer{
+.menu-footer {
   width: 100%;
   padding: 2.5em;
   display: flex;
   gap: 2.5em;
 }
 
-.col-lg{
+.col-lg {
   flex: 3;
 }
 
-.col-sm{
-  flex:2;
+.col-sm {
+  flex: 2;
 }
 
-.menu-items .col-lg{
+.menu-items .col-lg {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.menu-preview-img{
+.menu-preview-img {
   position: relative;
   width: 45%;
   height: 100%;
   overflow: hidden;
 }
 
-.menu-preview-img img{
+.menu-preview-img img {
   position: absolute;
-  will-change: tranform,opacity;
+  will-change: transform, opacity;
 }
 
-.menu-items .col-sm{
+.menu-items .col-sm {
   padding: 2.5em 0;
   display: flex;
   flex-direction: column;
@@ -361,51 +343,51 @@ nav{
 }
 
 .menu-links,
-.menu-socials{
+.menu-socials {
   display: flex;
   flex-direction: column;
   gap: 0.5em;
 }
 
 .link,
-.social{
+.social {
   padding-bottom: 6px;
-  clip-path:polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
 }
 
 .link a,
-.social a{
+.social a {
   display: inline-block;
-  will-change: tranform;
+  will-change: transform;
   transition: color 0.5s;
 }
 
-.link a{
+.link a {
   font-size: 3.5rem;
   letter-spacing: -0.02rem;
 }
 
-.social a{
+.social a {
   color: var(--light);
 }
 
-.social a:hover{
+.social a:hover {
   color: var(--light2);
 }
 
-.menu-footer{
+.menu-footer {
   position: absolute;
   bottom: 0;
 }
 
-.menu-footer .col-sm{
+.menu-footer .col-sm {
   display: flex;
   justify-content: center;
 }
 
 .link a::after,
 .social a::after,
-.menu-footer a::after{
+.menu-footer a::after {
   position: absolute;
   content: "";
   top: 102.5%;
@@ -415,25 +397,25 @@ nav{
   background-color: var(--light);
   transform: scaleX(0);
   transform-origin: right;
-  transition: tranform 0.3s cubic-bezier(0.6,0,0.4,1);
+  transition: transform 0.3s cubic-bezier(0.6, 0, 0.4, 1);
 }
 
 .link a:hover::after,
 .social a:hover::after,
-.menu-footer a:hover::after{
+.menu-footer a:hover::after {
   transform: scaleX(1);
   transform-origin: left;
 }
 
-.container{
+.container {
   position: relative;
   width: 100%;
   height: 100%;
-  will-change: tranform;
+  will-change: transform;
   transform-origin: right top;
 }
 
-.hero{
+.hero {
   position: relative;
   width: 100vw;
   height: 100vh;
@@ -442,7 +424,7 @@ nav{
   overflow: hidden;
 }
 
-.hero-img{
+.hero-img {
   position: absolute;
   top: 0;
   left: 0;
@@ -451,44 +433,44 @@ nav{
   z-index: -1;
 }
 
-.hero h1{
+.hero h1 {
   width: 80%;
 }
 
-.menu-toggle p#menu-close{
+.menu-toggle p#menu-close {
   opacity: 0;
   transform: translateX(-5px) translateY(10px) rotate(5deg);
 }
 
 .link a,
-.social a{
-  transform: translateY(120%) ;
+.social a {
+  transform: translateY(120%);
   opacity: 0.25;
 }
 
-.menu-content{
+.menu-content {
   transform: translateX(-100px) translateY(-100px) scaleX(1.5) rotate(-15deg);
   opacity: 0.25;
 }
 
-.menu-overlay{
+.menu-overlay {
   clip-path: polygon(0 0, 100% 0, 100% 0%, 0% 0%);
 }
 
-@media (max-width: 900px){
-  .hero h1{
+@media (max-width: 900px) {
+  .hero h1 {
     width: 100%;
     font-size: 4rem;
     letter-spacing: 0;
   }
 
-  .menu-items .col-lg{
+  .menu-items .col-lg {
     display: none;
   }
 
   .link a::after:hover,
   .social a::after:hover,
-  .menu-footer a::after:hover{
+  .menu-footer a::after:hover {
     display: none;
   }
 }
