@@ -1,10 +1,12 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import gsap from 'gsap';
 
+// 响应式变量
 const isOpen = ref(false);
 const isAnimating = ref(false);
 
+// DOM 相关元素
 const container = ref(null);
 const menuToggle = ref(null);
 const menuOverlay = ref(null);
@@ -12,10 +14,32 @@ const menuContent = ref(null);
 const menuPreviewImg = ref(null);
 const menuLinks = ref([]);
 
+// 菜单开关函数
+const toggleMenu = () => {
+  if (isAnimating.value) return;
+
 const openMenu = () => {
   if (isAnimating.value || isOpen.value) return;
+
+  //确保tranfrom重置
+  gsap.set(menuContent.value, {
+    rotation: -15,
+    x: -100,
+    y: -100,
+    scale: 1.5,
+    opacity: 0.25,
+  });
+  gsap.set([".link a", ".social a"], {
+    y: "120%",
+    opacity: 0.25,
+  });
+
+  isOpen.value ? closeMenu() : openMenu();
+};
+
   isAnimating.value = true;
 
+  // 开启菜单动画
   gsap.to(container.value, {
     rotation: 10,
     x: 300,
@@ -55,48 +79,64 @@ const openMenu = () => {
       isOpen.value = true;
     },
   });
+
+  const closeMenu = () => {
+    if (isAnimating.value || !isOpen.value) return;
+
+    isAnimating.value = true;
+
+    // 关闭菜单动画
+    gsap.to(container.value, {
+      rotation: 0,
+      x: 0,
+      y: 0,
+      scale: 1,
+      duration: 1.25,
+      ease: "power4.inOut",
+    });
+
+    animateMenuToggle(false);
+
+    gsap.to(menuContent.value, {
+      rotation: -15,
+      x: -100,
+      y: -100,
+      scale: 1.5,
+      opacity: 0.25,
+      duration: 1.25,
+      ease: "power4.inOut",
+    });
+
+    gsap.to(menuOverlay.value, {
+      clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)",
+      duration: 1.25,
+      ease: "power4.inOut",
+      onComplete: () => {
+        isOpen.value = false;
+        isAnimating.value = false;
+
+        // 重置 transform
+        gsap.set(menuContent.value, {
+          rotation: -15,
+          x: -100,
+          y: -100,
+          scale: 1.5,
+          opacity: 0.25,
+        });
+
+        gsap.set([".link a", ".social a"], {
+          y: "120%",
+          opacity: 0.25,
+        });
+
+        resetPreviewImage();
+      },
+    });
+  };
+
 };
 
-const closeMenu = () => {
-  if (isAnimating.value || !isOpen.value) return;
-  isAnimating.value = true;
-
-  gsap.to(container.value, {
-    rotation: 0,
-    x: 0,
-    y: 0,
-    scale: 1,
-    duration: 1.25,
-    ease: "power4.inOut",
-  });
-
-  animateMenuToggle(false);
-
-  gsap.to(menuContent.value, {
-    rotation: -15,
-    x: -100,
-    y: -100,
-    scale: 1.5,
-    opacity: 0.25,
-    duration: 1.25,
-    ease: "power4.inOut",
-  });
-
-  gsap.to(menuOverlay.value, {
-    clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%)",
-    duration: 1.25,
-    ease: "power4.inOut",
-    onComplete: () => {
-      isOpen.value = false;
-      isAnimating.value = false;
-      gsap.set([".link a", ".social a"], {
-        y: "120%",
-      });
-      resetPreviewImage();
-    },
-  });
-};
-
+// 菜单开关动画效果
 const animateMenuToggle = (isOpening) => {
   const open = document.querySelector('p#menu-open');
   const close = document.querySelector('p#menu-close');
@@ -121,15 +161,19 @@ const animateMenuToggle = (isOpening) => {
   });
 };
 
+// 清除多余的图片
 const cleanupPreviewImages = () => {
   const previewImages = menuPreviewImg.value.querySelectorAll('img');
   if (previewImages.length > 3) {
-    for (let i = 0; i < previewImages.length - 3; i++) {
-      menuPreviewImg.value.removeChild(previewImages[i]);
-    }
+    previewImages.forEach((img, index) => {
+      if (index < previewImages.length - 3) {
+        menuPreviewImg.value.removeChild(img);
+      }
+    });
   }
 };
 
+// 重置预览图
 const resetPreviewImage = () => {
   menuPreviewImg.value.innerHTML = '';
   const defaultImg = document.createElement('img');
@@ -137,33 +181,39 @@ const resetPreviewImage = () => {
   menuPreviewImg.value.appendChild(defaultImg);
 };
 
-menuLinks.value.forEach(link => {
-  link.addEventListener('mouseover', () => {
-    if (!isOpen.value || isAnimating.value) return;
+// 图片预览的 hover 事件处理
+const handleLinkHover = (event) => {
+  if (!isOpen.value || isAnimating.value) return;
 
-    const imgSrc = link.getAttribute("data-img");
-    if (!imgSrc) return;
+  const imgSrc = event.target.getAttribute("data-img");
+  if (!imgSrc) return;
 
-    const existingImages = menuPreviewImg.value.querySelectorAll('img');
-    if (existingImages.length > 0 && existingImages[existingImages.length - 1].src.endsWith(imgSrc)) {
-      return;
-    }
+  const existingImages = menuPreviewImg.value.querySelectorAll('img');
+  if (existingImages.length > 0 && existingImages[existingImages.length - 1].src.endsWith(imgSrc)) {
+    return;
+  }
 
-    const newPreviewImg = document.createElement('img');
-    newPreviewImg.src = imgSrc;
-    newPreviewImg.style.opacity = "0";
-    newPreviewImg.style.transform = "scale(1.25) rotate(10deg)";
+  const newPreviewImg = document.createElement('img');
+  newPreviewImg.src = imgSrc;
+  newPreviewImg.style.opacity = "0";
+  newPreviewImg.style.transform = "scale(1.25) rotate(10deg)";
 
-    menuPreviewImg.value.appendChild(newPreviewImg);
-    cleanupPreviewImages();
+  menuPreviewImg.value.appendChild(newPreviewImg);
+  cleanupPreviewImages();
 
-    gsap.to(newPreviewImg, {
-      opacity: 1,
-      scale: 1,
-      rotate: 0,
-      duration: 0.75,
-      ease: "power2.out",
-    });
+  gsap.to(newPreviewImg, {
+    opacity: 1,
+    scale: 1,
+    rotate: 0,
+    duration: 0.75,
+    ease: "power2.out",
+  });
+};
+
+// 在组件挂载后绑定菜单链接 hover 事件
+onMounted(() => {
+  menuLinks.value.forEach((link) => {
+    link.addEventListener('mouseover', handleLinkHover);
   });
 });
 </script>
@@ -173,7 +223,7 @@ menuLinks.value.forEach(link => {
     <div class="logo">
       <a href="#">Void Construct</a>
     </div>
-    <div class="menu-toggle" ref="menuToggle" @click="isOpen ? closeMenu() : openMenu()">
+    <div class="menu-toggle" ref="menuToggle" @click="toggleMenu">
       <p id="menu-open">Menu</p>
       <p id="menu-close">Close</p>
     </div>
@@ -190,37 +240,37 @@ menuLinks.value.forEach(link => {
         <div class="col-sm">
           <div class="menu-links" ref="menuLinks">
             <div class="link">
-              <a href="#" data-img="../src/assets/nature-1920.jpg">work</a>
+              <a href="#" data-img="../src/assets/lake-1920.jpg">View</a>
             </div>
             <div class="link">
-              <a href="#" data-img="../src/assets/nature-1920.jpg">work</a>
+              <a href="#" data-img="../src/assets/nature-1920.jpg">Nominees</a>
             </div>
             <div class="link">
-              <a href="#" data-img="../src/assets/nature-1920.jpg">work</a>
+              <a href="#" data-img="../src/assets/landscape-1920.jpg">Website</a>
             </div>
             <div class="link">
-              <a href="#" data-img="../src/assets/nature-1920.jpg">work</a>
+              <a href="#" data-img="../src/assets/mountain-1920.jpg">Work</a>
             </div>
           </div>
           <div class="menu-socials">
             <div class="social">
               <a href="#">
-                <img src="../src/assets/nature-1920.jpg" alt="">Work
+                Recent
               </a>
             </div>
             <div class="social">
               <a href="#">
-                <img src="../src/assets/nature-1920.jpg" alt="">Work
+                Site
               </a>
             </div>
             <div class="social">
               <a href="#">
-                <img src="../src/assets/nature-1920.jpg" alt="">Work
+                Day
               </a>
             </div>
             <div class="social">
               <a href="#">
-                <img src="../src/assets/nature-1920.jpg" alt="">Work
+                Work
               </a>
             </div>
           </div>
