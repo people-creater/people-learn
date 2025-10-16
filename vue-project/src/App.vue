@@ -142,8 +142,8 @@ document.addEventListener('DOMContentLoaded', () => {
         isOpen = false;
         isAnimating = false;
         gsap.set([".link a",".social a"],{
-          y:120%,
-        })
+          y:"120%",
+        });
         resetPreviewImage();
       }
     })
