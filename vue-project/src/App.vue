@@ -1,12 +1,12 @@
 <script setup>
-import {useRouter} from 'vue-router';
+// import {useRouter} from 'vue-router';
 import gsap from 'gsap';
 // import { onMounted, onUnmounted,ref } from 'vue';
 
-const router = useRouter();
-const handleClick = () => {
-  router.push('/about');
-}
+// const router = useRouter();
+// const handleClick = () => {
+//   router.push('/about');
+// }
 
 document.addEventListener('DOMContentLoaded', () => {
   const container = document.querySelector('.container');
@@ -148,7 +148,37 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     })
   }
+  menuLinks.forEach(link => {
+    link.addEventListener('mouseover', () => {
+      if(!isOpen || isAnimating) return;
 
+      const imgSrc = link.getAttribute("data-img")
+      if(!imgSrc) return;
+
+      const previewImages = menuPreviewImg.createElement('img');
+      if(
+          previewImages.length > 0 &&
+          previewImages[previewImages.length -1].src.endsWith(imgSrc)
+      )
+        return;
+
+      const newPreviewImg = document.createElement('img');
+      newPreviewImg.src = imgSrc;
+      newPreviewImg.style.opacity = "0";
+      newPreviewImg.style.transform = "scale(1.25) rotate(10deg)";
+
+      menuPreviewImg.appendChild(newPreviewImg);
+      cleanupPreviewImages()
+
+      gsap.to(newPreviewImg,{
+        opacity: 1,
+        scale: 1,
+        rotate: 0,
+        duration: 0.75,
+        ease: "power2.out",
+      })
+    })
+  })
 })
 
 </script>
