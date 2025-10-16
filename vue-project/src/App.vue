@@ -318,7 +318,7 @@ nav{
   justify-content: center;
   align-items: center;
   transform-origin: left bottom;
-  will-change: transform,opacity; /* 修复拼写错误 */
+  will-change: transform,opacity;
 }
 
 .menu-items,
