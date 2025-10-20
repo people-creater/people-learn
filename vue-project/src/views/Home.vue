@@ -421,9 +421,10 @@ section{
   height: 100svh;
   display: flex;
   justify-content: center;
-  z-index: -1;
+  z-index: 0;
   background-color: var(--light);
   color: var(--daik);
+  pointer-events: none;
 }
 
 .cards-container{
@@ -441,6 +442,7 @@ section{
   position: relative;
   aspect-ratio: 5/7;
   perspective: 1000px;
+  pointer-events: auto;
 }
 
 .cards-container .card .card-wrapper{
@@ -519,6 +521,21 @@ section{
   transform: rotateY(180deg);
 }
 
+#card-1 .flip-card-back{
+  background-color: var(--accent-1);
+  color: var(--light);
+}
+
+#card-2 .flip-card-back{
+  background-color: var(--accent-2);
+  color: var(--light);
+}
+
+#card-3 .flip-card-back{
+  background-color: var(--accent-3);
+  color: var(--light);
+}
+
 .card-copy{
   width: 100%;
   height: 100%;
@@ -533,8 +550,10 @@ section{
   justify-content: center;
   align-items: center;
   font-size: 1rem;
-  background-color: var(--light2);
+  background-color: rgba(255, 255, 255, 0.2);
   border-radius: 0.25rem;
+  color: var(--light);
+  backdrop-filter: blur(10px);
 }
 
 #card-1{

@@ -220,16 +220,22 @@ onMounted(() => {
   min-height: 100vh;
   background: var(--light);
   color: var(--daik);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .about-hero {
   position: relative;
+  width: 100%;
+  max-width: 1400px;
   height: 80vh;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   padding-top: 80px; /* 为固定导航栏留出空间 */
+  margin: 0 auto;
 }
 
 .hero-image {
@@ -252,8 +258,9 @@ onMounted(() => {
   text-align: center;
   color: var(--light);
   z-index: 2;
-  max-width: 800px;
+  max-width: 900px;
   padding: 2rem;
+  margin: 0 auto;
 }
 
 .hero-title {
@@ -281,18 +288,24 @@ onMounted(() => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem;
+  width: 100%;
 }
 
 .intro-section {
-  padding: 6rem 0;
+  width: 100%;
+  max-width: 1400px;
+  padding: 6rem 2rem;
   background: var(--light);
+  margin: 0 auto;
 }
 
 .intro-content {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4rem;
+  gap: 6rem;
   align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .intro-text h2 {
@@ -323,8 +336,11 @@ onMounted(() => {
 }
 
 .stats-section {
-  padding: 4rem 0;
+  width: 100%;
+  max-width: 1400px;
+  padding: 4rem 2rem;
   background: var(--light2);
+  margin: 0 auto;
 }
 
 .stats-grid {
@@ -353,8 +369,11 @@ onMounted(() => {
 }
 
 .skills-section {
-  padding: 6rem 0;
+  width: 100%;
+  max-width: 1400px;
+  padding: 6rem 2rem;
   background: var(--light);
+  margin: 0 auto;
 }
 
 .section-title {
@@ -407,9 +426,12 @@ onMounted(() => {
 }
 
 .timeline-section {
-  padding: 6rem 0;
+  width: 100%;
+  max-width: 1400px;
+  padding: 6rem 2rem;
   background: var(--daik);
   color: var(--light);
+  margin: 0 auto;
 }
 
 .timeline {
@@ -490,10 +512,13 @@ onMounted(() => {
 }
 
 .cta-section {
-  padding: 6rem 0;
+  width: 100%;
+  max-width: 1400px;
+  padding: 6rem 2rem;
   background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
   color: var(--light);
   text-align: center;
+  margin: 0 auto;
 }
 
 .cta-content h2 {
@@ -541,12 +566,30 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
+  .about-page {
+    align-items: stretch;
+  }
+
+  .about-hero {
+    max-width: 100%;
+    padding-top: 100px;
+  }
+
   .hero-title {
     font-size: 2.5rem;
   }
 
   .hero-subtitle {
     font-size: 1.2rem;
+  }
+
+  .intro-section,
+  .stats-section,
+  .skills-section,
+  .timeline-section,
+  .cta-section {
+    max-width: 100%;
+    padding: 4rem 1rem;
   }
 
   .intro-content {
