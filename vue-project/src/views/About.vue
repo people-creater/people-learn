@@ -113,7 +113,7 @@ onMounted(() => {
     <!-- 页面标题 -->
     <section class="about-hero">
       <div class="hero-image">
-        <img src="/src/assets/nature-1920.jpg" alt="About Me" />
+        <img src="../assets/nature-1920.jpg" alt="About Me" />
       </div>
       <div class="hero-content">
         <h1 class="hero-title">About Me</h1>
@@ -146,7 +146,7 @@ onMounted(() => {
             </p>
           </div>
           <div class="intro-image">
-            <img src="/src/assets/lake-1920.jpg" alt="My Work" />
+            <img src="../assets/lake-1920.jpg" alt="My Work" />
           </div>
         </div>
       </div>
