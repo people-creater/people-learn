@@ -12,7 +12,8 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --daik: #000;
+  --dark: #000;
+  --daik: #191919;
   --light:#f9f4eb;
   --light2: #d0ece5;
   --accent-1:#e5d9f6;

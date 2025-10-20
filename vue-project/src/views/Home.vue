@@ -10,43 +10,7 @@ import {useRouter} from 'vue-router';
 // const showMain = ref(true);
 // const showRouterView = ref(true);
 
-const isMenuOpen = ref(false);
-const router = useRouter();
-const navigateTo = (path) => {
-  router.push(path);
-  toggleMenu();
-}
-
-// watch(router,(to)=>{
-//   showNav.value = to.meta.showNav !== false;
-//   showMain.value = to.meta.showMain !== false;
-//   showRouterView.value = to.meta.showRouterView !== false;
-// })
-
-const handleAboutClick = () => {
-  router.push('/about');
-}
-
-const toggleMenu = () => {
-  isMenuOpen.value = !isMenuOpen.value;
-  const menu = document.querySelector(".menu");
-
-  if (isMenuOpen.value) {//展开菜单
-    gsap.to(menu,{
-      duration:0.5,
-      height: '200px',
-      opacity: 1,
-      ease: "power2.out",
-    })
-  }else{//收起菜单
-    gsap.to(menu,{
-      duration:0.5,
-      height: '0px',
-      opacity: 0,
-      ease: "power2.in",
-    })
-  }
-};
+// 移除导航相关代码，现在使用共享的Navigation组件
 
 // 实现 smoothStep 函数
 const smoothStep = (p) => p * p * (3 - 2 * p);
@@ -200,20 +164,6 @@ onMounted(() => {
 </script>
 
 <template>
-  <nav>
-    <div class = 'logo'><span>Site Logo</span></div>
-    <div class = 'menu-btn' @click="toggleMenu">
-      <a href="javascript:void(0)">Menu</a>
-    </div>
-    <div class = 'menu' v-show="isMenuOpen">
-      <ul>
-        <li @click = "navigateTo('/')"><a href="javascript:void(0)">App</a></li>
-        <li @click = handleAboutClick()><a href="#">About</a></li>
-        <li @click = "navigateTo('/home')"><a href="#">home</a></li>
-        <li><a href="#">Contact</a></li>
-      </ul>
-    </div>
-  </nav>
 
   <section class="hero">
     <div class="hero-cards">
@@ -379,68 +329,7 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
-nav{
-  position: fixed;
-  width: 100vw;
-  padding: 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  z-index: 2;
-}
-
-.logo span,
-.menu-btn a{
-  font-size: 0.8rem;
-  padding: 0.75rem;
-  border-radius: 0.25rem;
-}
-
-.logo span{
-  background-color: var(--daik);
-  color: var(--light);
-}
-
-.menu-btn a{
-  background-color: var(--light);
-  color: var(--daik);
-}
-
-.menu{
-  position: absolute;
-  top: 100%;
-  right: 0;
-  width: 100%;
-  height: 0;
-  opacity: 0;
-  overflow: hidden;
-  border-radius: 0.25rem;
-  background-color: var(--light);
-  transition: height 0.5s ease, opacity 0.5s ease;
-}
-
-.menu ul {
-  list-style: none;
-  padding: 1rem;
-  color: var(--daik);
-  margin: 0;
-}
-
-.menu li {
-  padding: 0.5rem 0;
-}
-
-.menu li a {
-  font-size: 0.8rem;
-  padding: 0.75rem;
-  border-radius: 0.25rem;
-  text-decoration: none;
-  color: var(--daik);
-}
-
-.menu li a:hover {
-  color: var(--accent-1);
-}
+/* 导航样式已移至Navigation组件 */
 
 section{
   position: relative;
@@ -453,6 +342,7 @@ section{
 .hero{
   background-color: var(--light);
   color: var(--daik);
+  padding-top: 80px; /* 为固定导航栏留出空间 */
 }
 
 .about,
