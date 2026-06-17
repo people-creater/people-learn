@@ -1,102 +1,70 @@
 <script setup>
-import { ref } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import gsap from 'gsap';
+import { ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
-const router = useRouter();
-const route = useRoute();
-const isMenuOpen = ref(false);
+const route = useRoute()
+const isMenuOpen = ref(false)
 
 const menuItems = [
-  { path: '/', name: 'Home', icon: '🏠' },
-  { path: '/about', name: 'About', icon: '👤' },
-  { path: '/portfolio', name: 'Portfolio', icon: '💼' },
-  { path: '/blog', name: 'Blog', icon: '📝' },
-  { path: '/contact', name: 'Contact', icon: '📧' }
-];
-
-const navigateTo = (path) => {
-  if (route.path !== path) {
-    router.push(path);
-  }
-  toggleMenu();
-};
+  { path: '/', name: 'Index', index: '01' },
+  { path: '/about', name: 'Studio', index: '02' },
+  { path: '/portfolio', name: 'Work', index: '03' },
+  { path: '/blog', name: 'Notes', index: '04' },
+  { path: '/contact', name: 'Start', index: '05' },
+]
 
 const toggleMenu = () => {
-  isMenuOpen.value = !isMenuOpen.value;
-  const menu = document.querySelector(".navigation-menu");
+  isMenuOpen.value = !isMenuOpen.value
+}
 
-  if (isMenuOpen.value) {
-    // 展开菜单
-    gsap.to(menu, {
-      duration: 0.5,
-      height: 'auto',
-      opacity: 1,
-      ease: "power2.out",
-    });
+const closeMenu = () => {
+  isMenuOpen.value = false
+}
 
-    // 菜单项动画
-    gsap.fromTo(".menu-item",
-        {
-          y: -20,
-          opacity: 0
-        },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.3,
-          stagger: 0.1,
-          delay: 0.2,
-          ease: "power2.out"
-        }
-    );
-  } else {
-    // 收起菜单
-    gsap.to(menu, {
-      duration: 0.5,
-      height: '0px',
-      opacity: 0,
-      ease: "power2.in",
-    });
-  }
-};
+const isActiveRoute = (path) => route.path === path
 
-const isActiveRoute = (path) => {
-  return route.path === path;
-};
+watch(() => route.path, closeMenu)
 </script>
 
 <template>
-  <nav class="navigation">
+  <nav class="navigation" aria-label="Primary navigation">
     <div class="nav-container">
-      <!-- Logo -->
-      <div class="logo" @click="navigateTo('/')">
-        <span>Portfolio</span>
-      </div>
+      <RouterLink class="logo" data-logo-target to="/" @click="closeMenu">
+        <span>People</span>
+        <span>Learn</span>
+      </RouterLink>
 
-      <!-- 菜单按钮 -->
-      <div class="menu-toggle" @click="toggleMenu">
-        <div class="hamburger" :class="{ active: isMenuOpen }">
+      <button
+        class="menu-toggle"
+        type="button"
+        :aria-expanded="isMenuOpen"
+        aria-controls="primary-menu"
+        aria-label="Toggle navigation"
+        @click="toggleMenu"
+      >
+        <span class="hamburger" :class="{ active: isMenuOpen }" aria-hidden="true">
           <span></span>
           <span></span>
           <span></span>
-        </div>
-      </div>
+        </span>
+      </button>
 
-      <!-- 导航菜单 -->
-      <div class="navigation-menu" v-show="isMenuOpen">
+      <div
+        id="primary-menu"
+        class="navigation-menu"
+        :class="{ open: isMenuOpen }"
+      >
         <ul class="menu-list">
           <li
-              v-for="item in menuItems"
-              :key="item.path"
-              class="menu-item"
-              :class="{ active: isActiveRoute(item.path) }"
-              @click="navigateTo(item.path)"
+            v-for="item in menuItems"
+            :key="item.path"
+            class="menu-item"
+            :class="{ active: isActiveRoute(item.path) }"
           >
-            <a href="javascript:void(0)" class="menu-link">
-              <span class="menu-icon">{{ item.icon }}</span>
+            <RouterLink class="menu-link" :to="item.path">
+              <span class="menu-index" aria-hidden="true">{{ item.index }}</span>
               <span class="menu-text">{{ item.name }}</span>
-            </a>
+            </RouterLink>
           </li>
         </ul>
       </div>
@@ -111,36 +79,54 @@ const isActiveRoute = (path) => {
   left: 0;
   right: 0;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  background: rgba(8, 8, 7, 0.58);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(245, 241, 232, 0.12);
 }
 
 .nav-container {
-  max-width: 1200px;
+  max-width: none;
   margin: 0 auto;
-  padding: 1rem 2rem;
+  padding: 0.85rem var(--section-x);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .logo {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--daik);
-  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--light);
   transition: color 0.3s ease;
 }
 
 .logo:hover {
-  color: var(--accent-1);
+  color: var(--accent-2);
+}
+
+.logo span:first-child {
+  padding: 0.3rem 0.5rem;
+  color: var(--dark);
+  background: var(--light);
+  border-radius: 999px;
 }
 
 .menu-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
   cursor: pointer;
-  padding: 0.5rem;
 }
 
 .hamburger {
@@ -154,11 +140,11 @@ const isActiveRoute = (path) => {
 
 .hamburger span {
   display: block;
-  height: 3px;
   width: 100%;
-  background: var(--daik);
+  height: 3px;
+  background: currentColor;
   border-radius: 2px;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease;
   transform-origin: center;
 }
 
@@ -179,79 +165,90 @@ const isActiveRoute = (path) => {
   top: 100%;
   left: 0;
   right: 0;
-  background: var(--light);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-  height: 0;
+  max-height: 0;
   opacity: 0;
   overflow: hidden;
+  background: rgba(17, 17, 15, 0.96);
+  border-bottom: 1px solid var(--line-invert);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.2);
+  transition: max-height 0.3s ease, opacity 0.2s ease;
+}
+
+.navigation-menu.open {
+  max-height: 420px;
+  opacity: 1;
 }
 
 .menu-list {
   list-style: none;
-  padding: 2rem;
+  padding: 1rem var(--section-x) 2rem;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .menu-item {
-  cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease;
 }
 
 .menu-item:hover {
-  transform: translateX(10px);
-}
-
-.menu-item.active .menu-link {
-  color: var(--accent-1);
-  background: rgba(var(--accent-1-rgb), 0.1);
+  transform: translateX(6px);
 }
 
 .menu-link {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  text-decoration: none;
-  color: var(--daik);
-  border-radius: 0.5rem;
-  transition: all 0.3s ease;
+  gap: 0.75rem;
+  min-height: 42px;
+  padding: 0.75rem 1rem;
+  color: var(--light);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  transition: background 0.3s ease, color 0.3s ease;
   font-weight: 500;
 }
 
-.menu-link:hover {
-  background: rgba(var(--accent-1-rgb), 0.05);
+.menu-link:hover,
+.menu-item.active .menu-link {
+  background: rgba(var(--accent-1-rgb), 0.16);
+  border-color: rgba(var(--accent-1-rgb), 0.28);
   color: var(--accent-1);
 }
 
-.menu-icon {
-  font-size: 1.2rem;
-  width: 24px;
-  text-align: center;
+.menu-index {
+  width: 2ch;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  opacity: 0.6;
 }
 
 .menu-text {
-  font-size: 1.1rem;
+  font-size: 0.88rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-/* 响应式设计 */
 @media (min-width: 768px) {
+  .menu-toggle {
+    display: none;
+  }
+
   .navigation-menu {
     position: static;
-    height: auto !important;
-    opacity: 1 !important;
+    max-height: none;
+    opacity: 1;
+    overflow: visible;
     background: transparent;
-    border: none;
+    border: 0;
     box-shadow: none;
   }
 
   .menu-list {
     flex-direction: row;
+    align-items: center;
     padding: 0;
-    gap: 2rem;
+    gap: 0.35rem;
   }
 
   .menu-item:hover {
@@ -259,17 +256,14 @@ const isActiveRoute = (path) => {
   }
 
   .menu-link {
-    padding: 0.5rem 1rem;
-  }
-
-  .menu-toggle {
-    display: none;
+    color: var(--light);
+    padding: 0.45rem 0.7rem;
   }
 }
 
 @media (max-width: 767px) {
   .nav-container {
-    padding: 1rem;
+    padding: 0.75rem 1rem;
   }
 
   .logo {

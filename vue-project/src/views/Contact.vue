@@ -1,465 +1,324 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import gsap from 'gsap';
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { onMounted, onUnmounted, ref } from 'vue'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import GridParticleBackground from '../Component/GridParticleBackground.vue'
+
+const startRoot = ref(null)
+let ctx = null
 
 const form = ref({
   name: '',
   email: '',
-  subject: '',
-  message: ''
-});
+  focus: '',
+  message: '',
+})
 
-const isSubmitting = ref(false);
-const submitMessage = ref('');
+const isSubmitting = ref(false)
+const submitMessage = ref('')
 
-const contactInfo = ref([
-  {
-    icon: '📧',
-    title: 'Email',
-    value: 'hello@example.com',
-    link: 'mailto:hello@example.com'
-  },
-  {
-    icon: '📱',
-    title: 'Phone',
-    value: '+1 (555) 123-4567',
-    link: 'tel:+15551234567'
-  },
-  {
-    icon: '📍',
-    title: 'Location',
-    value: 'San Francisco, CA',
-    link: '#'
-  },
-  {
-    icon: '💼',
-    title: 'LinkedIn',
-    value: 'linkedin.com/in/username',
-    link: 'https://linkedin.com/in/username'
-  }
-]);
+const fitSignals = [
+  'A product or portfolio needs a stronger first impression.',
+  'The interface has content, but the story feels scattered.',
+  'Motion and interaction should clarify the experience.',
+  'The final build needs responsive verification and polish.',
+]
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  isSubmitting.value = true;
+const contactChannels = [
+  { label: 'Email', value: 'hello@example.com', link: 'mailto:hello@example.com' },
+  { label: 'Availability', value: 'Selective project windows', link: '#' },
+  { label: 'Mode', value: 'Remote collaboration', link: '#' },
+]
 
-  // 模拟提交
-  await new Promise(resolve => setTimeout(resolve, 2000));
-
-  isSubmitting.value = false;
-  submitMessage.value = 'Thank you for your message! I\'ll get back to you soon.';
-
-  // 重置表单
-  form.value = {
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  };
-
-  // 3秒后清除消息
-  setTimeout(() => {
-    submitMessage.value = '';
-  }, 3000);
-};
+const handleSubmit = async () => {
+  isSubmitting.value = true
+  await new Promise((resolve) => setTimeout(resolve, 900))
+  isSubmitting.value = false
+  submitMessage.value = 'Brief received. I will review the direction and respond with next steps.'
+  form.value = { name: '', email: '', focus: '', message: '' }
+  window.setTimeout(() => {
+    submitMessage.value = ''
+  }, 3200)
+}
 
 onMounted(() => {
-  gsap.registerPlugin(ScrollTrigger);
+  gsap.registerPlugin(ScrollTrigger)
+  const root = startRoot.value
+  if (!root) return
 
-  // 标题动画
-  gsap.fromTo(".contact-title",
-      {
-        y: 100,
-        opacity: 0
-      },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 1,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: ".contact-hero",
-          start: "top 80%"
-        }
-      }
-  );
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ctx = gsap.context(() => {
+    if (reduceMotion) {
+      gsap.set('.start-reveal', { autoAlpha: 1, y: 0 })
+      return
+    }
 
-  // 联系信息卡片动画
-  gsap.fromTo(".contact-card",
-      {
-        y: 50,
-        opacity: 0,
-        scale: 0.9
-      },
-      {
-        y: 0,
-        opacity: 1,
-        scale: 1,
-        duration: 0.8,
-        stagger: 0.2,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: ".contact-info",
-          start: "top 80%",
-          end: "bottom 20%",
-          toggleActions: "play none none reverse"
-        }
-      }
-  );
+    gsap.timeline({ defaults: { ease: 'power3.out' } })
+      .from('.start-hero-copy', { autoAlpha: 0, y: 36, duration: 0.78 }, 0)
+      .from('.brief-panel', { autoAlpha: 0, y: 28, duration: 0.72 }, 0.2)
 
-  // 表单动画
-  gsap.fromTo(".contact-form",
-      {
-        x: 100,
-        opacity: 0
-      },
-      {
-        x: 0,
-        opacity: 1,
-        duration: 1,
-        ease: "power3.out",
+    gsap.utils.toArray('.start-reveal').forEach((block) => {
+      gsap.from(block, {
+        autoAlpha: 0,
+        y: 42,
+        duration: 0.68,
+        ease: 'power3.out',
         scrollTrigger: {
-          trigger: ".contact-form",
-          start: "top 80%"
-        }
-      }
-  );
-});
+          trigger: block,
+          start: 'top 84%',
+          toggleActions: 'play none none reverse',
+        },
+      })
+    })
+  }, root)
+})
+
+onUnmounted(() => {
+  ctx?.revert()
+  ctx = null
+})
 </script>
 
 <template>
-  <div class="contact-page">
-    <!-- 页面标题 -->
-    <section class="contact-hero">
-      <div class="hero-content">
-        <h1 class="contact-title">Get In Touch</h1>
-        <p class="hero-subtitle">Let's create something amazing together</p>
+  <main ref="startRoot" class="start-page dark-stage-page">
+    <div class="page-grid-stage" aria-hidden="true">
+      <GridParticleBackground variant="start" :intensity="0.78" />
+    </div>
+
+    <section class="start-hero dark-stage-hero">
+      <div class="start-hero-copy">
+        <p class="stage-eyebrow">Start</p>
+        <h1 class="stage-title">Brief the next interface before it becomes noise.</h1>
+        <p class="stage-copy">
+          A focused starting point for product direction, motion systems, and launch-ready frontend work.
+        </p>
+      </div>
+
+      <form class="brief-panel" @submit.prevent="handleSubmit">
+        <p class="stage-eyebrow">Brief</p>
+        <div class="form-grid">
+          <label>
+            Name
+            <input v-model="form.name" type="text" autocomplete="name" required placeholder="Your name" />
+          </label>
+          <label>
+            Email
+            <input v-model="form.email" type="email" autocomplete="email" required placeholder="you@example.com" />
+          </label>
+        </div>
+        <label>
+          Focus
+          <input v-model="form.focus" type="text" required placeholder="Strategy, Interface, Motion, Delivery" />
+        </label>
+        <label>
+          Message
+          <textarea v-model="form.message" rows="6" required placeholder="Tell me what needs to become clearer." />
+        </label>
+        <button type="submit" :disabled="isSubmitting">
+          {{ isSubmitting ? 'Sending Brief' : 'Send Brief' }}
+        </button>
+        <p v-if="submitMessage" class="submit-message">{{ submitMessage }}</p>
+      </form>
+    </section>
+
+    <section class="fit-section content-panel">
+      <div class="section-heading start-reveal">
+        <p class="stage-eyebrow">Fit</p>
+        <h2>Good projects usually start with one of these signals.</h2>
+      </div>
+      <div class="fit-list">
+        <article v-for="(signal, index) in fitSignals" :key="signal" class="fit-item start-reveal">
+          <span>{{ String(index + 1).padStart(2, '0') }}</span>
+          <p>{{ signal }}</p>
+        </article>
       </div>
     </section>
 
-    <!-- 主要内容 -->
-    <section class="contact-content">
-      <div class="container">
-        <!-- 联系信息 -->
-        <div class="contact-info">
-          <div class="info-grid">
-            <div
-                v-for="info in contactInfo"
-                :key="info.title"
-                class="contact-card"
-            >
-              <div class="card-icon">{{ info.icon }}</div>
-              <h3>{{ info.title }}</h3>
-              <a :href="info.link" class="card-link">{{ info.value }}</a>
-            </div>
-          </div>
-        </div>
-
-        <!-- 联系表单 -->
-        <div class="form-section">
-          <form @submit="handleSubmit" class="contact-form">
-            <h2>Send me a message</h2>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="name">Name</label>
-                <input
-                    type="text"
-                    id="name"
-                    v-model="form.name"
-                    required
-                    placeholder="Your name"
-                />
-              </div>
-              <div class="form-group">
-                <label for="email">Email</label>
-                <input
-                    type="email"
-                    id="email"
-                    v-model="form.email"
-                    required
-                    placeholder="your.email@example.com"
-                />
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="subject">Subject</label>
-              <input
-                  type="text"
-                  id="subject"
-                  v-model="form.subject"
-                  required
-                  placeholder="What's this about?"
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="message">Message</label>
-              <textarea
-                  id="message"
-                  v-model="form.message"
-                  required
-                  rows="6"
-                  placeholder="Tell me about your project..."
-              ></textarea>
-            </div>
-
-            <button
-                type="submit"
-                class="submit-btn"
-                :disabled="isSubmitting"
-            >
-              <span v-if="!isSubmitting">Send Message</span>
-              <span v-else>Sending...</span>
-            </button>
-
-            <div v-if="submitMessage" class="submit-message">
-              {{ submitMessage }}
-            </div>
-          </form>
-        </div>
+    <section class="contact-section content-panel">
+      <div class="section-heading start-reveal">
+        <p class="stage-eyebrow">Contact</p>
+        <h2>Keep the channel direct and the brief specific.</h2>
+      </div>
+      <div class="contact-list">
+        <a
+          v-for="channel in contactChannels"
+          :key="channel.label"
+          :href="channel.link"
+          class="contact-link start-reveal"
+        >
+          <span>{{ channel.label }}</span>
+          <strong>{{ channel.value }}</strong>
+        </a>
       </div>
     </section>
 
-    <!-- 地图区域 -->
-    <section class="map-section">
-      <div class="map-placeholder">
-        <div class="map-content">
-          <h3>📍 San Francisco, CA</h3>
-          <p>Available for freelance projects worldwide</p>
-        </div>
+    <section class="next-section content-panel">
+      <div class="start-reveal">
+        <p class="stage-eyebrow">Next Step</p>
+        <h2>From first signal to inspected build.</h2>
       </div>
     </section>
-  </div>
+  </main>
 </template>
 
 <style scoped>
-.contact-page {
-  min-height: 100vh;
-  background: var(--light);
-  color: var(--daik);
-}
-
-.contact-hero {
-  height: 50vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, var(--accent-2), var(--accent-3));
-  color: var(--light);
-  text-align: center;
-  padding-top: 80px; /* 为固定导航栏留出空间 */
-}
-
-.hero-content {
-  max-width: 800px;
-  padding: 2rem;
-}
-
-.contact-title {
-  font-size: 4rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
-
-.hero-subtitle {
-  font-size: 1.5rem;
-  opacity: 0.9;
-}
-
-.contact-content {
-  padding: 6rem 2rem;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.contact-info {
-  margin-bottom: 6rem;
-}
-
-.info-grid {
+.start-hero {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
+  grid-template-columns: minmax(24rem, 0.92fr) minmax(22rem, 0.56fr);
+  min-height: 100svh;
+  align-items: center;
+  gap: clamp(2rem, 5vw, 5rem);
+  padding: 8rem var(--section-x) 4rem;
 }
 
-.contact-card {
-  background: var(--light);
-  padding: 2rem;
-  border-radius: 1rem;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  transition: transform 0.3s ease;
+.start-hero-copy {
+  max-width: 76rem;
 }
 
-.contact-card:hover {
-  transform: translateY(-5px);
+.start-hero .stage-copy {
+  max-width: 40rem;
+  margin-top: 1.4rem;
 }
 
-.card-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
+.brief-panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid rgba(245, 241, 232, 0.16);
+  border-radius: 8px;
+  background: rgba(8, 8, 7, 0.68);
+  backdrop-filter: blur(10px);
 }
 
-.contact-card h3 {
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
-  color: var(--daik);
-}
-
-.card-link {
-  color: var(--accent-1);
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.3s ease;
-}
-
-.card-link:hover {
-  color: var(--accent-2);
-}
-
-.form-section {
-  background: var(--light2);
-  padding: 3rem;
-  border-radius: 1rem;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-}
-
-.contact-form h2 {
-  font-size: 2rem;
-  margin-bottom: 2rem;
-  text-align: center;
-  color: var(--daik);
-}
-
-.form-row {
+.form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
-  margin-bottom: 1rem;
 }
 
-.form-group {
-  margin-bottom: 1.5rem;
+.brief-panel label {
+  display: grid;
+  gap: 0.45rem;
+  color: rgba(245, 241, 232, 0.62);
+  font-size: 0.76rem;
+  font-weight: 850;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
 }
 
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: var(--daik);
-}
-
-.form-group input,
-.form-group textarea {
+.brief-panel input,
+.brief-panel textarea {
   width: 100%;
-  padding: 1rem;
-  border: 2px solid #e1e5e9;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
-  background: var(--light);
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: var(--accent-1);
-}
-
-.form-group textarea {
-  resize: vertical;
-  min-height: 120px;
-}
-
-.submit-btn {
-  width: 100%;
-  padding: 1rem 2rem;
-  background: var(--accent-1);
+  border: 1px solid rgba(245, 241, 232, 0.14);
+  border-radius: 6px;
+  background: rgba(245, 241, 232, 0.06);
   color: var(--light);
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  padding: 0.85rem 0.9rem;
+  resize: vertical;
 }
 
-.submit-btn:hover:not(:disabled) {
-  background: var(--accent-2);
-  transform: translateY(-2px);
+.brief-panel input:focus,
+.brief-panel textarea:focus {
+  border-color: rgba(var(--accent-1-rgb), 0.58);
 }
 
-.submit-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
+.brief-panel button {
+  min-height: 46px;
+  border: 1px solid rgba(var(--accent-1-rgb), 0.44);
+  border-radius: 999px;
+  color: var(--dark);
+  background: var(--accent-1);
+  font-weight: 850;
+}
+
+.brief-panel button:disabled {
+  opacity: 0.62;
+  cursor: wait;
 }
 
 .submit-message {
-  margin-top: 1rem;
-  padding: 1rem;
-  background: var(--accent-3);
+  color: rgba(245, 241, 232, 0.72);
+  font-size: 0.9rem;
+}
+
+.fit-section,
+.contact-section,
+.next-section {
+  padding: 7rem var(--section-x);
+}
+
+.section-heading {
+  max-width: 74rem;
+  margin-bottom: clamp(2.4rem, 5vw, 5rem);
+}
+
+.section-heading h2,
+.next-section h2 {
+  margin: 0;
   color: var(--light);
-  border-radius: 0.5rem;
-  text-align: center;
-  font-weight: 500;
+  font-size: clamp(2.35rem, 5.6vw, 5.8rem);
+  line-height: 0.9;
+  font-weight: 680;
 }
 
-.map-section {
-  height: 400px;
-  background: var(--daik);
+.fit-list,
+.contact-list {
+  display: grid;
+  border-top: 1px solid rgba(245, 241, 232, 0.14);
+}
+
+.fit-item,
+.contact-link {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr);
+  gap: 1rem;
+  padding: 1.4rem 0;
+  border-bottom: 1px solid rgba(245, 241, 232, 0.14);
+}
+
+.fit-item span,
+.contact-link span {
+  color: var(--accent-1);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.fit-item p,
+.contact-link strong {
+  margin: 0;
+  color: rgba(245, 241, 232, 0.78);
+  font-size: clamp(1.1rem, 2vw, 1.55rem);
+  font-weight: 560;
+}
+
+.next-section {
   display: flex;
+  min-height: 72svh;
   align-items: center;
-  justify-content: center;
 }
 
-.map-placeholder {
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(45deg, var(--accent-1), var(--accent-2));
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.next-section > div {
+  max-width: 76rem;
 }
 
-.map-content {
-  text-align: center;
-  color: var(--light);
-}
-
-.map-content h3 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-}
-
-.map-content p {
-  font-size: 1.25rem;
-  opacity: 0.9;
-}
-
-@media (max-width: 768px) {
-  .contact-title {
-    font-size: 2.5rem;
-  }
-
-  .hero-subtitle {
-    font-size: 1.2rem;
-  }
-
-  .form-row {
+@media (max-width: 920px) {
+  .start-hero,
+  .form-grid {
     grid-template-columns: 1fr;
   }
+}
 
-  .form-section {
-    padding: 2rem 1rem;
+@media (max-width: 640px) {
+  .start-hero,
+  .fit-section,
+  .contact-section,
+  .next-section {
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 
-  .info-grid {
+  .fit-item,
+  .contact-link {
     grid-template-columns: 1fr;
   }
 }

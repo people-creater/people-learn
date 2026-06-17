@@ -1,9 +1,17 @@
 <script setup>
-import Navigation from './Component/Navigation.vue';
+import { ref } from 'vue'
+import EntryVectorIntro from './Component/EntryVectorIntro.vue'
+import Navigation from './Component/Navigation.vue'
+
+const showEntryIntro = ref(true)
 </script>
 
 <template>
   <div id="app">
+    <EntryVectorIntro
+      v-if="showEntryIntro"
+      @complete="showEntryIntro = false"
+    />
     <Navigation />
     <router-view />
   </div>
@@ -11,93 +19,173 @@ import Navigation from './Component/Navigation.vue';
 
 <style>
 * {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 :root {
-  --light: #ffffff;
-  --light2: #f8f9fa;
-  --daik: #1a1a1a;
-  --accent-1: #6366f1;
-  --accent-2: #8b5cf6;
-  --accent-3: #ec4899;
-  --accent-1-rgb: 99, 102, 241;
+  --light: #f5f1e8;
+  --light2: #e6efe7;
+  --daik: #11110f;
+  --dark: #080807;
+  --ink: #171612;
+  --muted: #7a756b;
+  --line: rgba(17, 17, 15, 0.14);
+  --line-invert: rgba(245, 241, 232, 0.18);
+  --accent-1: #d7ff63;
+  --accent-2: #ff6b4a;
+  --accent-3: #7aa8ff;
+  --accent-1-rgb: 215, 255, 99;
+  --radius: 8px;
+  --section-x: clamp(1rem, 4vw, 4rem);
+}
+
+html {
+  scroll-behavior: smooth;
+  background: var(--dark);
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-  sans-serif;
+  min-width: 320px;
+  min-height: 100vh;
+  overflow-x: hidden;
+  color: var(--light);
+  background:
+    radial-gradient(circle at 12% 10%, rgba(122, 168, 255, 0.14), transparent 28rem),
+    radial-gradient(circle at 82% 8%, rgba(215, 255, 99, 0.12), transparent 24rem),
+    var(--dark);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  line-height: 1.6;
-  color: var(--daik);
-  background: var(--light);
+}
+
+body.entry-intro-active {
+  overflow: hidden;
+}
+
+body.entry-intro-active .navigation .logo {
+  opacity: 0;
+}
+
+body.entry-intro-handoff .navigation {
+  background: rgba(8, 8, 7, 0.78);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image:
+    linear-gradient(90deg, rgba(245, 241, 232, 0.7) 1px, transparent 1px),
+    linear-gradient(rgba(245, 241, 232, 0.7) 1px, transparent 1px);
+  background-size: 5px 5px;
+  mix-blend-mode: screen;
 }
 
 #app {
+  width: 100%;
   min-height: 100vh;
 }
 
-/* 平滑滚动 */
-html {
-  scroll-behavior: smooth;
-}
-
-/* 链接样式 */
 a {
   color: inherit;
   text-decoration: none;
 }
 
-/* 按钮样式 */
+button,
+input,
+textarea {
+  font: inherit;
+}
+
 button {
-  border: none;
+  border: 0;
   background: none;
   cursor: pointer;
-  font-family: inherit;
 }
 
-/* 输入框样式 */
-input, textarea {
-  font-family: inherit;
-  border: none;
-  outline: none;
+input,
+textarea {
+  border: 0;
+  outline: 0;
 }
 
-/* 图片样式 */
 img {
+  display: block;
   max-width: 100%;
   height: auto;
 }
 
-/* 工具类 */
+::selection {
+  color: var(--dark);
+  background: var(--accent-1);
+}
+
 .container {
-  max-width: 1200px;
+  width: min(1200px, calc(100% - var(--section-x) * 2));
   margin: 0 auto;
-  padding: 0 2rem;
 }
 
-.text-center {
-  text-align: center;
+.dark-stage-page {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(122, 168, 255, 0.12), transparent 30rem),
+    radial-gradient(circle at 86% 8%, rgba(215, 255, 99, 0.1), transparent 28rem),
+    var(--dark);
+  color: var(--light);
 }
 
-.mb-1 { margin-bottom: 0.5rem; }
-.mb-2 { margin-bottom: 1rem; }
-.mb-3 { margin-bottom: 1.5rem; }
-.mb-4 { margin-bottom: 2rem; }
+.dark-stage-hero {
+  position: relative;
+  z-index: 3;
+}
 
-.mt-1 { margin-top: 0.5rem; }
-.mt-2 { margin-top: 1rem; }
-.mt-3 { margin-top: 1.5rem; }
-.mt-4 { margin-top: 2rem; }
+.page-grid-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
 
-/* 响应式工具类 */
-@media (max-width: 768px) {
-  .container {
-    padding: 0 1rem;
-  }
+.content-panel {
+  position: relative;
+  z-index: 3;
+  background:
+    linear-gradient(180deg, rgba(8, 8, 7, 0.6), rgba(8, 8, 7, 0.52)),
+    rgba(8, 8, 7, 0.34);
+  backdrop-filter: blur(2px);
+}
+
+.stage-eyebrow {
+  margin-bottom: 1rem;
+  color: var(--accent-1);
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.stage-title {
+  margin: 0;
+  color: var(--light);
+  font-size: clamp(2.9rem, 7vw, 7.8rem);
+  line-height: 0.9;
+  font-weight: 680;
+  letter-spacing: 0;
+}
+
+.stage-copy {
+  color: rgba(245, 241, 232, 0.7);
+  font-size: clamp(1rem, 1.45vw, 1.18rem);
+  line-height: 1.5;
 }
 </style>

@@ -1,421 +1,338 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import gsap from 'gsap';
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import GridParticleBackground from '../Component/GridParticleBackground.vue'
+import natureImage from '../assets/nature-1920.jpg'
+import lakeImage from '../assets/lake-1920.jpg'
+import mountainImage from '../assets/mountain-1920.jpg'
+import landscapeImage from '../assets/landscape-1920.jpg'
 
-// 作品集数据
-const projects = ref([
+const workRoot = ref(null)
+let ctx = null
+
+const projects = [
   {
-    id: 1,
-    title: "Web Design Project",
-    category: "Web Design",
-    image: "/src/assets/nature-1920.jpg",
-    description: "A modern responsive website with interactive animations and smooth user experience.",
-    technologies: ["Vue.js", "GSAP", "CSS3"],
-    link: "#"
+    id: '01',
+    title: 'Signal Field',
+    chapter: 'Selected Work',
+    category: 'Web System',
+    year: '2026',
+    image: natureImage,
+    summary: 'A cinematic landing system with scroll rhythm, grid atmosphere, and modular narrative sections.',
+    proof: ['Dark stage', 'GSAP rhythm', 'Responsive checks'],
   },
   {
-    id: 2,
-    title: "Mobile App UI",
-    category: "Mobile Design",
-    image: "/src/assets/lake-1920.jpg",
-    description: "Intuitive mobile application interface design focusing on user experience.",
-    technologies: ["Figma", "Adobe XD", "Sketch"],
-    link: "#"
+    id: '02',
+    title: 'Quiet Banking',
+    chapter: 'Systems',
+    category: 'Product UI',
+    year: '2025',
+    image: lakeImage,
+    summary: 'A calm operational interface shaped around comparison, trust, and fast repeated decisions.',
+    proof: ['Dense layouts', 'Readable states', 'Motion restraint'],
   },
   {
-    id: 3,
-    title: "Brand Identity",
-    category: "Branding",
-    image: "/src/assets/mountain-1920.jpg",
-    description: "Complete brand identity design including logo, color palette, and typography.",
-    technologies: ["Illustrator", "Photoshop", "InDesign"],
-    link: "#"
+    id: '03',
+    title: 'North Brand',
+    chapter: 'Proof',
+    category: 'Identity',
+    year: '2025',
+    image: mountainImage,
+    summary: 'A sharp editorial brand direction that translates typography and imagery into a usable web system.',
+    proof: ['Type scale', 'Art direction', 'Interaction rules'],
   },
   {
-    id: 4,
-    title: "E-commerce Platform",
-    category: "Web Development",
-    image: "/src/assets/landscape-1920.jpg",
-    description: "Full-stack e-commerce solution with modern design and robust functionality.",
-    technologies: ["Vue.js", "Node.js", "MongoDB"],
-    link: "#"
-  }
-]);
+    id: '04',
+    title: 'Commerce Atlas',
+    chapter: 'Detail',
+    category: 'Frontend',
+    year: '2024',
+    image: landscapeImage,
+    summary: 'A storefront prototype that turns product browsing into a slower, more spatial inspection flow.',
+    proof: ['Vue build', 'Performance pass', 'Launch flow'],
+  },
+]
 
-const activeFilter = ref('All');
-const filteredProjects = ref(projects.value);
+const categories = ['All', 'Web System', 'Product UI', 'Identity', 'Frontend']
+const activeFilter = ref('All')
 
-const categories = ['All', 'Web Design', 'Mobile Design', 'Branding', 'Web Development'];
-
-const filterProjects = (category) => {
-  activeFilter.value = category;
-  if (category === 'All') {
-    filteredProjects.value = projects.value;
-  } else {
-    filteredProjects.value = projects.value.filter(project => project.category === category);
-  }
-};
+const filteredProjects = computed(() => {
+  if (activeFilter.value === 'All') return projects
+  return projects.filter((project) => project.category === activeFilter.value)
+})
 
 onMounted(() => {
-  gsap.registerPlugin(ScrollTrigger);
+  gsap.registerPlugin(ScrollTrigger)
+  const root = workRoot.value
+  if (!root) return
 
-  // 项目卡片动画
-  gsap.fromTo(".project-card",
-      {
-        y: 100,
-        opacity: 0,
-        scale: 0.8
-      },
-      {
-        y: 0,
-        opacity: 1,
-        scale: 1,
-        duration: 0.8,
-        stagger: 0.2,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: ".projects-grid",
-          start: "top 80%",
-          end: "bottom 20%",
-          toggleActions: "play none none reverse"
-        }
-      }
-  );
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ctx = gsap.context(() => {
+    if (reduceMotion) {
+      gsap.set('.work-reveal', { autoAlpha: 1, y: 0 })
+      return
+    }
 
-  // 过滤器按钮动画
-  gsap.fromTo(".filter-btn",
-      {
-        y: -50,
-        opacity: 0
-      },
-      {
-        y: 0,
-        opacity: 1,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: "power2.out",
+    gsap.timeline({ defaults: { ease: 'power3.out' } })
+      .from('.work-hero-copy', { autoAlpha: 0, y: 36, duration: 0.78 }, 0)
+      .from('.work-filter', { autoAlpha: 0, y: 16, duration: 0.5, stagger: 0.06 }, 0.28)
+
+    gsap.utils.toArray('.work-reveal').forEach((block) => {
+      gsap.from(block, {
+        autoAlpha: 0,
+        y: 46,
+        duration: 0.72,
+        ease: 'power3.out',
         scrollTrigger: {
-          trigger: ".portfolio-filters",
-          start: "top 90%"
-        }
-      }
-  );
-});
+          trigger: block,
+          start: 'top 84%',
+          toggleActions: 'play none none reverse',
+        },
+      })
+    })
+  }, root)
+})
+
+onUnmounted(() => {
+  ctx?.revert()
+  ctx = null
+})
 </script>
 
 <template>
-  <div class="portfolio-page">
-    <!-- 页面标题 -->
-    <section class="hero-section">
-      <div class="hero-content">
-        <h1 class="hero-title">My Portfolio</h1>
-        <p class="hero-subtitle">Creative solutions for modern challenges</p>
+  <main ref="workRoot" class="work-page dark-stage-page">
+    <div class="page-grid-stage" aria-hidden="true">
+      <GridParticleBackground variant="work" :intensity="0.78" />
+    </div>
+
+    <section class="work-hero dark-stage-hero">
+      <div class="work-hero-copy">
+        <p class="stage-eyebrow">Work</p>
+        <h1 class="stage-title">Selected Work built as systems, proof, and detail.</h1>
+        <p class="stage-copy">
+          Project rows stay quiet and inspectable while the background keeps the same spatial language as INDEX and STUDIO.
+        </p>
       </div>
     </section>
 
-    <!-- 过滤器 -->
-    <section class="portfolio-filters">
-      <div class="filters-container">
-        <button
-            v-for="category in categories"
-            :key="category"
-            @click="filterProjects(category)"
-            :class="['filter-btn', { active: activeFilter === category }]"
-        >
-          {{ category }}
-        </button>
-      </div>
+    <section class="work-filters content-panel" aria-label="Work filters">
+      <button
+        v-for="category in categories"
+        :key="category"
+        type="button"
+        class="work-filter"
+        :class="{ active: activeFilter === category }"
+        @click="activeFilter = category"
+      >
+        {{ category }}
+      </button>
     </section>
 
-    <!-- 项目网格 -->
-    <section class="projects-section">
-      <div class="projects-grid">
-        <div
-            v-for="project in filteredProjects"
-            :key="project.id"
-            class="project-card"
-        >
-          <div class="project-image">
-            <img :src="project.image" :alt="project.title" />
-            <div class="project-overlay">
-              <div class="project-info">
-                <h3>{{ project.title }}</h3>
-                <p>{{ project.description }}</p>
-                <div class="project-tech">
-                  <span
-                      v-for="tech in project.technologies"
-                      :key="tech"
-                      class="tech-tag"
-                  >
-                    {{ tech }}
-                  </span>
-                </div>
-                <a :href="project.link" class="project-link">View Project</a>
-              </div>
-            </div>
+    <section class="work-index content-panel">
+      <article
+        v-for="project in filteredProjects"
+        :key="project.id"
+        class="work-row work-reveal"
+      >
+        <div class="work-number">{{ project.id }}</div>
+        <div class="work-image">
+          <img :src="project.image" :alt="project.title" />
+        </div>
+        <div class="work-copy">
+          <div class="work-meta">
+            <span>{{ project.chapter }}</span>
+            <span>{{ project.category }} / {{ project.year }}</span>
           </div>
-          <div class="project-meta">
-            <h4>{{ project.title }}</h4>
-            <span class="project-category">{{ project.category }}</span>
+          <h2>{{ project.title }}</h2>
+          <p>{{ project.summary }}</p>
+          <div class="work-proof" aria-label="Project proof points">
+            <span v-for="item in project.proof" :key="item">{{ item }}</span>
           </div>
         </div>
-      </div>
+      </article>
     </section>
 
-    <!-- 联系CTA -->
-    <section class="cta-section">
-      <div class="cta-content">
-        <h2>Ready to work together?</h2>
-        <p>Let's create something amazing</p>
-        <a href="/contact" class="cta-button">Get In Touch</a>
-      </div>
+    <section class="work-cta content-panel">
+      <p class="stage-eyebrow">Next Step</p>
+      <h2>Move from reference to a working interface.</h2>
+      <RouterLink to="/contact">Start a Brief</RouterLink>
     </section>
-  </div>
+  </main>
 </template>
 
 <style scoped>
-.portfolio-page {
-  min-height: 100vh;
-  background: var(--light);
-  color: var(--daik);
-}
-
-.hero-section {
-  height: 60vh;
+.work-hero {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-  color: var(--light);
-  text-align: center;
-  padding-top: 80px; /* 为固定导航栏留出空间 */
+  min-height: 92svh;
+  align-items: flex-end;
+  padding: 8rem var(--section-x) 4rem;
 }
 
-.hero-content {
-  max-width: 800px;
-  padding: 2rem;
+.work-hero-copy {
+  max-width: 82rem;
 }
 
-.hero-title {
-  font-size: 4rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  background: linear-gradient(45deg, var(--light), rgba(255,255,255,0.8));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.work-hero .stage-copy {
+  max-width: 42rem;
+  margin-top: 1.4rem;
 }
 
-.hero-subtitle {
-  font-size: 1.5rem;
-  opacity: 0.9;
-}
-
-.portfolio-filters {
-  padding: 4rem 2rem;
-  background: var(--light);
-}
-
-.filters-container {
-  max-width: 1200px;
-  margin: 0 auto;
+.work-filters {
+  position: sticky;
+  top: 69px;
+  z-index: 30;
   display: flex;
-  justify-content: center;
-  gap: 1rem;
-  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.95rem var(--section-x);
+  overflow-x: auto;
+  border-top: 1px solid rgba(245, 241, 232, 0.12);
+  border-bottom: 1px solid rgba(245, 241, 232, 0.12);
 }
 
-.filter-btn {
-  padding: 0.75rem 1.5rem;
-  border: 2px solid var(--daik);
-  background: transparent;
-  color: var(--daik);
-  border-radius: 2rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 500;
+.work-filter {
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 0 0.9rem;
+  border: 1px solid rgba(245, 241, 232, 0.14);
+  border-radius: 999px;
+  color: rgba(245, 241, 232, 0.72);
+  background: rgba(245, 241, 232, 0.04);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  transition: transform 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
 
-.filter-btn:hover,
-.filter-btn.active {
-  background: var(--daik);
-  color: var(--light);
+.work-filter:hover,
+.work-filter.active {
+  color: var(--accent-1);
+  border-color: rgba(var(--accent-1-rgb), 0.42);
   transform: translateY(-2px);
 }
 
-.projects-section {
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
+.work-index {
+  padding: 0 var(--section-x) 5rem;
 }
 
-.projects-grid {
+.work-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 2rem;
+  grid-template-columns: 4rem minmax(18rem, 0.88fr) minmax(20rem, 1.12fr);
+  gap: clamp(1rem, 3vw, 3rem);
+  align-items: center;
+  min-height: 64svh;
+  padding: clamp(2rem, 5vw, 5rem) 0;
+  border-bottom: 1px solid rgba(245, 241, 232, 0.14);
 }
 
-.project-card {
-  background: var(--light);
-  border-radius: 1rem;
+.work-number,
+.work-meta {
+  color: rgba(245, 241, 232, 0.52);
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.work-number {
+  align-self: start;
+  color: var(--accent-1);
+}
+
+.work-image {
+  aspect-ratio: 16 / 10;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  transition: transform 0.3s ease;
+  border: 1px solid rgba(245, 241, 232, 0.12);
+  border-radius: 8px;
+  background: #10100e;
 }
 
-.project-card:hover {
-  transform: translateY(-10px);
-}
-
-.project-image {
-  position: relative;
-  height: 250px;
-  overflow: hidden;
-}
-
-.project-image img {
+.work-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  filter: saturate(0.78) contrast(1.05) brightness(0.68);
+  transition: transform 0.8s ease, filter 0.8s ease;
 }
 
-.project-card:hover .project-image img {
-  transform: scale(1.1);
+.work-row:hover .work-image img {
+  transform: scale(1.06);
+  filter: saturate(1.02) contrast(1.08) brightness(0.78);
 }
 
-.project-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.8);
+.work-meta {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.project-card:hover .project-overlay {
-  opacity: 1;
-}
-
-.project-info {
-  text-align: center;
-  color: var(--light);
-  padding: 2rem;
-}
-
-.project-info h3 {
-  font-size: 1.5rem;
+  justify-content: space-between;
+  gap: 1rem;
   margin-bottom: 1rem;
 }
 
-.project-info p {
-  margin-bottom: 1.5rem;
-  opacity: 0.9;
+.work-copy h2,
+.work-cta h2 {
+  margin: 0;
+  color: var(--light);
+  font-size: clamp(2.25rem, 5.4vw, 5.6rem);
+  line-height: 0.9;
+  font-weight: 680;
 }
 
-.project-tech {
+.work-copy p {
+  max-width: 42rem;
+  margin: 1.1rem 0 1.4rem;
+  color: rgba(245, 241, 232, 0.68);
+  font-size: clamp(1rem, 1.35vw, 1.12rem);
+}
+
+.work-proof {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+.work-proof span {
+  padding: 0.45rem 0.65rem;
+  border: 1px solid rgba(245, 241, 232, 0.13);
+  border-radius: 999px;
+  color: rgba(245, 241, 232, 0.72);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.work-cta {
+  display: flex;
+  min-height: 76svh;
+  flex-direction: column;
   justify-content: center;
-  margin-bottom: 1.5rem;
+  padding: 7rem var(--section-x);
 }
 
-.tech-tag {
-  background: var(--accent-1);
-  color: var(--light);
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.8rem;
+.work-cta h2 {
+  max-width: 74rem;
 }
 
-.project-link {
-  display: inline-block;
-  padding: 0.75rem 1.5rem;
-  background: var(--light);
-  color: var(--daik);
-  text-decoration: none;
-  border-radius: 2rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.project-link:hover {
-  background: var(--accent-2);
-  color: var(--light);
-}
-
-.project-meta {
-  padding: 1.5rem;
-}
-
-.project-meta h4 {
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
-}
-
-.project-category {
+.work-cta a {
+  width: fit-content;
+  margin-top: 2rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid rgba(var(--accent-1-rgb), 0.4);
+  border-radius: 999px;
   color: var(--accent-1);
-  font-weight: 500;
-  font-size: 0.9rem;
+  font-weight: 850;
 }
 
-.cta-section {
-  padding: 6rem 2rem;
-  background: var(--daik);
-  color: var(--light);
-  text-align: center;
-}
-
-.cta-content h2 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.cta-content p {
-  font-size: 1.25rem;
-  margin-bottom: 2rem;
-  opacity: 0.8;
-}
-
-.cta-button {
-  display: inline-block;
-  padding: 1rem 2rem;
-  background: var(--accent-1);
-  color: var(--light);
-  text-decoration: none;
-  border-radius: 2rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.cta-button:hover {
-  background: var(--accent-2);
-  transform: translateY(-2px);
-}
-
-@media (max-width: 768px) {
-  .hero-title {
-    font-size: 2.5rem;
-  }
-
-  .hero-subtitle {
-    font-size: 1.2rem;
-  }
-
-  .projects-grid {
+@media (max-width: 900px) {
+  .work-row {
     grid-template-columns: 1fr;
+    min-height: auto;
   }
+}
 
-  .filters-container {
-    flex-direction: column;
-    align-items: center;
+@media (max-width: 640px) {
+  .work-hero,
+  .work-index,
+  .work-cta {
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 }
 </style>

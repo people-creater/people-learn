@@ -1,620 +1,655 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import gsap from 'gsap';
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue'
+import GridParticleBackground from '../Component/GridParticleBackground.vue'
+import natureImage from '../assets/nature-1920.jpg'
+import lakeImage from '../assets/lake-1920.jpg'
+import mountainImage from '../assets/mountain-1920.jpg'
+import landscapeImage from '../assets/landscape-1920.jpg'
+import { capabilityCards } from '../data/capabilityCards'
 
-const router = useRouter();
+const StudioThreeCardUniverse = defineAsyncComponent(() => import('../Component/ThreeCardUniverse.vue'))
 
-const skills = ref([
-  { name: 'Vue.js', level: 90 },
-  { name: 'JavaScript', level: 95 },
-  { name: 'CSS3', level: 88 },
-  { name: 'HTML5', level: 92 },
-  { name: 'GSAP', level: 85 },
-  { name: 'Node.js', level: 80 }
-]);
+const studioRoot = ref(null)
+const desktopStageActive = ref(false)
+let ctx = null
+let stageMedia = null
 
-const timeline = ref([
+const syncStageMedia = () => {
+  desktopStageActive.value = stageMedia?.matches ?? false
+}
+
+const studioCards = capabilityCards.map((card) => ({
+  ...card,
+  summary: {
+    strategy: 'Turn unclear inputs into priorities, product direction, and a motion-ready structure.',
+    interface: 'Design responsive screens, reusable UI patterns, and transitions that support reading.',
+    delivery: 'Build production Vue interfaces with clean interactions, checked states, and launch rhythm.',
+  }[card.id],
+}))
+
+const studioThreeCards = studioCards.map((card) => ({
+  ...card,
+  summary: card.summary,
+}))
+
+const mediaTextures = [
+  { src: natureImage, alt: 'Nature texture for strategy card', label: 'Research Terrain' },
+  { src: lakeImage, alt: 'Lake texture for interface card', label: 'Interface Field' },
+  { src: mountainImage, alt: 'Mountain texture for delivery card', label: 'Delivery Ridge' },
+  { src: landscapeImage, alt: 'Landscape texture for the studio stage', label: 'Studio Stage' },
+]
+
+const methodNotes = studioCards.map((card) => ({
+  id: card.id,
+  number: card.number,
+  title: card.title,
+  text: card.summary,
+  items: card.items,
+  accent: card.accent,
+}))
+
+const processSteps = [
   {
-    year: '2023',
-    title: 'Senior Frontend Developer',
-    company: 'Tech Company',
-    description: 'Leading frontend development projects and mentoring junior developers.'
+    label: 'Signal',
+    text: 'Find the story, constraints, and user moments that should shape the interface.',
   },
   {
-    year: '2021',
-    title: 'Frontend Developer',
-    company: 'Design Studio',
-    description: 'Creating responsive web applications with modern JavaScript frameworks.'
+    label: 'System',
+    text: 'Translate the direction into reusable layouts, card rules, motion timing, and responsive states.',
   },
   {
-    year: '2019',
-    title: 'Web Developer',
-    company: 'Digital Agency',
-    description: 'Building custom websites and web applications for various clients.'
+    label: 'Motion',
+    text: 'Use GSAP and Three.js only where they clarify the experience instead of adding noise.',
   },
   {
-    year: '2017',
-    title: 'Junior Developer',
-    company: 'Startup Inc',
-    description: 'Started my journey in web development with HTML, CSS, and JavaScript.'
-  }
-]);
+    label: 'Ship',
+    text: 'Verify the build, inspect edge cases, and keep the final UI stable across screen sizes.',
+  },
+]
 
-const stats = ref([
-  { number: '50+', label: 'Projects Completed' },
-  { number: '3+', label: 'Years Experience' },
-  { number: '25+', label: 'Happy Clients' },
-  { number: '10+', label: 'Awards Won' }
-]);
+const toolkitItems = [
+  'Vue 3 composition flows',
+  'GSAP scoped timelines',
+  'ScrollTrigger reveals',
+  'Three.js card stages',
+  'Responsive fallbacks',
+  'Build verification',
+]
+
+const outcomes = [
+  {
+    title: 'Clearer Product Direction',
+    text: 'Strategy becomes a visible decision system instead of scattered notes.',
+    image: natureImage,
+  },
+  {
+    title: 'Motion With Purpose',
+    text: 'Interface states move in a way that supports reading and exploration.',
+    image: lakeImage,
+  },
+  {
+    title: 'Launch-Ready Frontend',
+    text: 'Delivery focuses on behavior, responsiveness, and clean handoff.',
+    image: mountainImage,
+  },
+]
 
 onMounted(() => {
-  gsap.registerPlugin(ScrollTrigger);
+  gsap.registerPlugin(ScrollTrigger)
 
-  // 技能条动画
-  gsap.fromTo(".skill-bar",
-      { width: 0 },
-      {
-        width: "100%",
-        duration: 1.5,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: ".skills-section",
-          start: "top 80%"
-        }
-      }
-  );
+  const root = studioRoot.value
+  if (!root) return
 
-  // 时间线动画
-  gsap.fromTo(".timeline-item",
-      {
-        x: -100,
-        opacity: 0
-      },
-      {
-        x: 0,
-        opacity: 1,
-        duration: 0.8,
-        stagger: 0.2,
-        ease: "power3.out",
-        scrollTrigger: {
-          trigger: ".timeline",
-          start: "top 80%",
-          end: "bottom 20%",
-          toggleActions: "play none none reverse"
-        }
-      }
-  );
+  stageMedia = window.matchMedia('(min-width: 981px)')
+  syncStageMedia()
+  stageMedia.addEventListener('change', syncStageMedia)
 
-  // 统计数据动画
-  gsap.fromTo(".stat-number",
-      {
-        scale: 0,
-        opacity: 0
-      },
-      {
-        scale: 1,
-        opacity: 1,
-        duration: 1,
-        stagger: 0.1,
-        ease: "back.out(1.7)",
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  ctx = gsap.context(() => {
+    if (reduceMotion) {
+      gsap.set('.studio-reveal', { autoAlpha: 1, y: 0, scale: 1 })
+      return
+    }
+
+    gsap.timeline({ defaults: { ease: 'power3.out' } })
+      .from('.studio-eyebrow', { autoAlpha: 0, y: 18, duration: 0.45 }, 0)
+      .from('.studio-hero h1', { autoAlpha: 0, y: 44, duration: 0.82 }, 0.08)
+      .from('.studio-hero-copy p:not(.studio-eyebrow)', { autoAlpha: 0, y: 24, duration: 0.62, stagger: 0.08 }, 0.22)
+      .from('.page-three-stage', { autoAlpha: 0, scale: 1.02, duration: 1.1 }, 0.12)
+      .from('.studio-signal', { autoAlpha: 0, y: 20, duration: 0.56, stagger: 0.07 }, 0.32)
+
+    gsap.utils.toArray('.studio-reveal').forEach((block) => {
+      gsap.from(block, {
+        autoAlpha: 0,
+        y: 48,
+        duration: 0.72,
+        ease: 'power3.out',
         scrollTrigger: {
-          trigger: ".stats-section",
-          start: "top 80%"
-        }
-      }
-  );
-});
+          trigger: block,
+          start: 'top 84%',
+          toggleActions: 'play none none reverse',
+        },
+      })
+    })
+  }, root)
+})
+
+onUnmounted(() => {
+  stageMedia?.removeEventListener('change', syncStageMedia)
+  stageMedia = null
+  ctx?.revert()
+  ctx = null
+})
 </script>
 
 <template>
-  <div class="about-page">
-    <!-- 页面标题 -->
-    <section class="about-hero">
-      <div class="hero-image">
-        <img src="../assets/nature-1920.jpg" alt="About Me" />
+  <main ref="studioRoot" class="studio-page dark-stage-page">
+    <div class="page-grid-stage" aria-hidden="true">
+      <GridParticleBackground variant="studio" :intensity="0.82" />
+    </div>
+
+    <div v-if="desktopStageActive" class="page-three-stage desktop-three-stage" aria-hidden="true">
+      <StudioThreeCardUniverse
+        class="studio-three-universe"
+        :cards="studioThreeCards"
+        :media-textures="mediaTextures"
+        variant="studio"
+        quality="full"
+        layout="page-stage"
+        :intensity="0.86"
+        aria-hidden="true"
+      />
+    </div>
+
+    <section class="studio-hero dark-stage-hero">
+      <div class="studio-hero-copy">
+        <p class="studio-eyebrow stage-eyebrow">Studio</p>
+        <h1 class="stage-title">A capability studio with one spatial method.</h1>
+        <p class="stage-copy">
+          STUDIO now extends the INDEX stage: the same Strategy, Interface, and Delivery cards
+          become a calmer workspace for direction, systems, and launch-ready frontend work.
+        </p>
+
+        <div class="studio-signals" aria-label="Studio capability summary">
+          <span
+            v-for="card in studioCards"
+            :key="card.id"
+            class="studio-signal"
+            :style="{ '--signal-accent': card.accent }"
+          >
+            {{ card.number }} {{ card.title }}
+          </span>
+        </div>
       </div>
-      <div class="hero-content">
-        <h1 class="hero-title">About Me</h1>
-        <p class="hero-subtitle">Passionate Frontend Developer</p>
-        <p class="hero-description">
-          I'm a creative developer with a passion for building beautiful,
-          interactive web experiences that engage and inspire users.
+
+      <div v-if="!desktopStageActive" class="mobile-three-stage" aria-hidden="true">
+        <StudioThreeCardUniverse
+          :cards="studioThreeCards"
+          :media-textures="mediaTextures"
+          variant="studio"
+          quality="fallback"
+          layout="local-stage"
+          :intensity="0.84"
+        />
+      </div>
+    </section>
+
+    <section class="studio-method studio-section content-panel">
+      <div class="section-heading studio-reveal">
+        <p class="studio-eyebrow stage-eyebrow">Method</p>
+        <h2>The INDEX cards become a practical studio method.</h2>
+        <p>
+          The page no longer repeats a second oversized card show. It translates the same card
+          language into a quieter capability grid and lets the 3D stage stay the visual lead.
         </p>
       </div>
-    </section>
 
-    <!-- 介绍部分 -->
-    <section class="intro-section">
-      <div class="container">
-        <div class="intro-content">
-          <div class="intro-text">
-            <h2>My Story</h2>
-            <p>
-              With over 3 years of experience in frontend development, I specialize in creating
-              modern, responsive web applications using Vue.js, JavaScript, and cutting-edge
-              animation libraries like GSAP.
-            </p>
-            <p>
-              I believe in the power of great design and smooth user experiences. Every project
-              I work on is an opportunity to push the boundaries of what's possible on the web.
-            </p>
-            <p>
-              When I'm not coding, you can find me exploring new technologies, contributing to
-              open source projects, or sharing knowledge with the developer community.
-            </p>
-          </div>
-          <div class="intro-image">
-            <img src="../assets/lake-1920.jpg" alt="My Work" />
-          </div>
-        </div>
+      <div class="method-grid">
+        <article
+          v-for="note in methodNotes"
+          :key="note.id"
+          class="method-item studio-reveal"
+          :style="{ '--method-accent': note.accent }"
+        >
+          <span>{{ note.number }}</span>
+          <h3>{{ note.title }}</h3>
+          <p>{{ note.text }}</p>
+          <ul>
+            <li v-for="item in note.items" :key="item">{{ item }}</li>
+          </ul>
+        </article>
       </div>
     </section>
 
-    <!-- 统计数据 -->
-    <section class="stats-section">
-      <div class="container">
-        <div class="stats-grid">
-          <div v-for="stat in stats" :key="stat.label" class="stat-item">
-            <span class="stat-number">{{ stat.number }}</span>
-            <span class="stat-label">{{ stat.label }}</span>
-          </div>
-        </div>
+    <section class="process-runway studio-section content-panel">
+      <div class="section-heading studio-reveal">
+        <p class="studio-eyebrow stage-eyebrow">Process</p>
+        <h2>A scroll-friendly path from signal to shipped UI.</h2>
+      </div>
+      <div class="process-list">
+        <article
+          v-for="(step, index) in processSteps"
+          :key="step.label"
+          class="process-step studio-reveal"
+        >
+          <span>{{ String(index + 1).padStart(2, '0') }}</span>
+          <h3>{{ step.label }}</h3>
+          <p>{{ step.text }}</p>
+        </article>
       </div>
     </section>
 
-    <!-- 技能部分 -->
-    <section class="skills-section">
-      <div class="container">
-        <h2 class="section-title">Skills & Technologies</h2>
-        <div class="skills-grid">
-          <div v-for="skill in skills" :key="skill.name" class="skill-item">
-            <div class="skill-header">
-              <span class="skill-name">{{ skill.name }}</span>
-              <span class="skill-percentage">{{ skill.level }}%</span>
-            </div>
-            <div class="skill-bar-container">
-              <div class="skill-bar" :style="{ width: skill.level + '%' }"></div>
-            </div>
-          </div>
-        </div>
+    <section class="toolkit-section studio-section content-panel">
+      <div class="section-heading studio-reveal">
+        <p class="studio-eyebrow stage-eyebrow">Toolkit</p>
+        <h2>Quiet systems for expressive frontend work.</h2>
+      </div>
+      <div class="toolkit-grid">
+        <article
+          v-for="item in toolkitItems"
+          :key="item"
+          class="toolkit-item studio-reveal"
+        >
+          {{ item }}
+        </article>
       </div>
     </section>
 
-    <!-- 时间线 -->
-    <section class="timeline-section">
-      <div class="container">
-        <h2 class="section-title">My Journey</h2>
-        <div class="timeline">
-          <div v-for="item in timeline" :key="item.year" class="timeline-item">
-            <div class="timeline-year">{{ item.year }}</div>
-            <div class="timeline-content">
-              <h3 class="timeline-title">{{ item.title }}</h3>
-              <div class="timeline-company">{{ item.company }}</div>
-              <p class="timeline-description">{{ item.description }}</p>
-            </div>
+    <section class="outcomes-section studio-section content-panel">
+      <div class="section-heading studio-reveal">
+        <p class="studio-eyebrow stage-eyebrow">Outcomes</p>
+        <h2>What the studio system is designed to produce.</h2>
+      </div>
+      <div class="outcome-grid">
+        <article
+          v-for="outcome in outcomes"
+          :key="outcome.title"
+          class="outcome-card studio-reveal"
+        >
+          <img :src="outcome.image" :alt="outcome.title" />
+          <div>
+            <h3>{{ outcome.title }}</h3>
+            <p>{{ outcome.text }}</p>
           </div>
-        </div>
+        </article>
       </div>
     </section>
 
-    <!-- CTA部分 -->
-    <section class="cta-section">
-      <div class="container">
-        <div class="cta-content">
-          <h2>Let's Work Together</h2>
-          <p>Ready to bring your ideas to life?</p>
-          <div class="cta-buttons">
-            <a href="/portfolio" class="cta-button primary">View My Work</a>
-            <a href="/contact" class="cta-button">Get In Touch</a>
-          </div>
+    <section class="studio-cta content-panel">
+      <div class="studio-reveal">
+        <p class="studio-eyebrow stage-eyebrow">Next Step</p>
+        <h2>Bring the next interface into focus.</h2>
+        <div class="cta-actions">
+          <RouterLink to="/portfolio">View Work</RouterLink>
+          <RouterLink to="/contact">Start a Project</RouterLink>
         </div>
       </div>
     </section>
-  </div>
+  </main>
 </template>
 
 <style scoped>
-.about-page {
+.studio-page {
+  position: relative;
   min-height: 100vh;
-  background: var(--light);
-  color: var(--daik);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  overflow-x: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 14% 12%, rgba(122, 168, 255, 0.14), transparent 30rem),
+    radial-gradient(circle at 86% 6%, rgba(215, 255, 99, 0.12), transparent 26rem),
+    var(--dark);
+  color: var(--light);
 }
 
-.about-hero {
+.studio-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  background-image:
+    linear-gradient(90deg, rgba(245, 241, 232, 0.08) 1px, transparent 1px),
+    linear-gradient(rgba(245, 241, 232, 0.06) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(180deg, #000, transparent 70%);
+}
+
+.studio-hero,
+.studio-section,
+.studio-cta {
   position: relative;
+  z-index: 2;
+}
+
+.page-three-stage {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.mobile-three-stage {
+  display: none;
+}
+
+.studio-hero {
+  display: grid;
+  grid-template-columns: minmax(24rem, 0.68fr) minmax(36rem, 1.32fr);
+  align-items: center;
+  min-height: 100svh;
+  gap: clamp(2rem, 5vw, 5.5rem);
+  padding: 7rem var(--section-x) 3rem;
+}
+
+.studio-hero-copy {
+  max-width: 46rem;
+}
+
+.studio-eyebrow {
+  margin-bottom: 1rem;
+  color: var(--accent-1);
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.studio-hero h1,
+.section-heading h2,
+.studio-cta h2 {
+  max-width: 62rem;
+  margin: 0;
+  color: var(--light);
+  font-size: clamp(2.6rem, 4.7vw, 4.8rem);
+  line-height: 0.96;
+  font-weight: 650;
+  letter-spacing: 0;
+}
+
+.studio-hero-copy p:not(.studio-eyebrow),
+.section-heading p:not(.studio-eyebrow),
+.method-item p,
+.process-step p,
+.outcome-card p {
+  color: rgba(245, 241, 232, 0.68);
+}
+
+.studio-hero-copy p:not(.studio-eyebrow) {
+  max-width: 38rem;
+  margin-top: 1.35rem;
+  font-size: clamp(1rem, 1.45vw, 1.18rem);
+}
+
+.studio-signals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 1.75rem;
+}
+
+.studio-signal {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.2rem;
+  padding: 0 0.75rem;
+  border: 1px solid color-mix(in srgb, var(--signal-accent), transparent 68%);
+  border-radius: 999px;
+  color: var(--signal-accent);
+  font-size: 0.74rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.studio-three-universe {
+  min-height: 100%;
+}
+
+.studio-section {
+  padding: 7rem var(--section-x);
+}
+
+.content-panel {
+  background:
+    linear-gradient(180deg, rgba(8, 8, 7, 0.6), rgba(8, 8, 7, 0.52)),
+    rgba(8, 8, 7, 0.32);
+  backdrop-filter: blur(2px);
+}
+
+.section-heading {
+  max-width: 64rem;
+  margin-bottom: clamp(2.5rem, 5vw, 5rem);
+}
+
+.section-heading h2,
+.studio-cta h2 {
+  font-size: clamp(2.4rem, 5.6vw, 5.5rem);
+}
+
+.section-heading p:not(.studio-eyebrow) {
+  max-width: 44rem;
+  margin-top: 1rem;
+}
+
+.method-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  border: 1px solid rgba(245, 241, 232, 0.12);
+  background: rgba(245, 241, 232, 0.12);
+}
+
+.method-item {
+  min-height: 24rem;
+  padding: 1.15rem;
+  background: #10100e;
+}
+
+.method-item > span {
+  color: var(--method-accent);
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.method-item h3 {
+  margin: 4.5rem 0 1rem;
+  color: var(--light);
+  font-size: clamp(1.8rem, 3.5vw, 3.4rem);
+  line-height: 1;
+}
+
+.method-item p {
+  margin: 0 0 1.2rem;
+}
+
+.method-item ul {
+  display: grid;
+  gap: 0.45rem;
+  list-style: none;
+}
+
+.method-item li {
+  padding: 0.55rem 0.65rem;
+  border: 1px solid rgba(245, 241, 232, 0.12);
+  border-radius: 4px;
+  background: rgba(245, 241, 232, 0.055);
+  color: rgba(245, 241, 232, 0.76);
+  font-size: 0.8rem;
+  font-weight: 760;
+}
+
+.process-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid rgba(245, 241, 232, 0.13);
+  border-left: 1px solid rgba(245, 241, 232, 0.13);
+}
+
+.process-step {
+  min-height: 18rem;
+  padding: 1.15rem;
+  border-right: 1px solid rgba(245, 241, 232, 0.13);
+  border-bottom: 1px solid rgba(245, 241, 232, 0.13);
+}
+
+.process-step span {
+  color: var(--accent-1);
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.process-step h3 {
+  margin: 4rem 0 1rem;
+  color: var(--light);
+  font-size: clamp(1.5rem, 3vw, 2.4rem);
+}
+
+.toolkit-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  border: 1px solid rgba(245, 241, 232, 0.12);
+  background: rgba(245, 241, 232, 0.12);
+}
+
+.toolkit-item {
+  min-height: 9rem;
+  padding: 1.15rem;
+  background: #0c0c0a;
+  color: var(--light);
+  font-size: clamp(1.05rem, 2vw, 1.55rem);
+  font-weight: 760;
+}
+
+.outcome-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.outcome-card {
+  overflow: hidden;
+  border: 1px solid rgba(245, 241, 232, 0.12);
+  border-radius: var(--radius);
+  background: rgba(245, 241, 232, 0.04);
+}
+
+.outcome-card img {
   width: 100%;
-  max-width: 1400px;
-  height: 80vh;
+  aspect-ratio: 4 / 3;
+  height: auto;
+  object-fit: cover;
+  filter: saturate(0.82) contrast(1.05);
+}
+
+.outcome-card div {
+  padding: 1rem;
+}
+
+.outcome-card h3 {
+  margin: 0 0 0.75rem;
+  color: var(--light);
+  font-size: 1.28rem;
+}
+
+.studio-cta {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  padding-top: 80px; /* 为固定导航栏留出空间 */
-  margin: 0 auto;
-}
-
-.hero-image {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-}
-
-.hero-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.hero-content {
-  position: relative;
+  min-height: 82svh;
+  padding: 7rem var(--section-x);
   text-align: center;
-  color: var(--light);
-  z-index: 2;
-  max-width: 900px;
-  padding: 2rem;
-  margin: 0 auto;
 }
 
-.hero-title {
-  font-size: 4rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+.studio-cta > div {
+  max-width: 68rem;
 }
 
-.hero-subtitle {
-  font-size: 1.5rem;
-  opacity: 0.9;
-  margin-bottom: 2rem;
+.studio-cta .studio-eyebrow,
+.studio-cta h2 {
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.hero-description {
-  font-size: 1.1rem;
-  max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.6;
-  opacity: 0.8;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
-  width: 100%;
-}
-
-.intro-section {
-  width: 100%;
-  max-width: 1400px;
-  padding: 6rem 2rem;
-  background: var(--light);
-  margin: 0 auto;
-}
-
-.intro-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6rem;
-  align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.intro-text h2 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 2rem;
-  color: var(--daik);
-}
-
-.intro-text p {
-  font-size: 1.1rem;
-  line-height: 1.8;
-  margin-bottom: 1.5rem;
-  opacity: 0.8;
-}
-
-.intro-image {
-  position: relative;
-  height: 400px;
-  border-radius: 1rem;
-  overflow: hidden;
-}
-
-.intro-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.stats-section {
-  width: 100%;
-  max-width: 1400px;
-  padding: 4rem 2rem;
-  background: var(--light2);
-  margin: 0 auto;
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 2rem;
-}
-
-.stat-item {
-  text-align: center;
-  padding: 2rem;
-}
-
-.stat-number {
-  font-size: 3rem;
-  font-weight: 700;
-  color: var(--accent-1);
-  margin-bottom: 0.5rem;
-  display: block;
-}
-
-.stat-label {
-  font-size: 1.1rem;
-  color: var(--daik);
-  font-weight: 500;
-}
-
-.skills-section {
-  width: 100%;
-  max-width: 1400px;
-  padding: 6rem 2rem;
-  background: var(--light);
-  margin: 0 auto;
-}
-
-.section-title {
-  text-align: center;
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 3rem;
-  color: var(--daik);
-}
-
-.skills-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-}
-
-.skill-item {
-  margin-bottom: 2rem;
-}
-
-.skill-header {
+.cta-actions {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.skill-name {
-  font-weight: 600;
-  color: var(--daik);
-}
-
-.skill-percentage {
-  color: var(--accent-1);
-  font-weight: 600;
-}
-
-.skill-bar-container {
-  height: 8px;
-  background: var(--light2);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.skill-bar {
-  height: 100%;
-  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
-  border-radius: 4px;
-  width: 0;
-}
-
-.timeline-section {
-  width: 100%;
-  max-width: 1400px;
-  padding: 6rem 2rem;
-  background: var(--daik);
-  color: var(--light);
-  margin: 0 auto;
-}
-
-.timeline {
-  position: relative;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.timeline::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: var(--accent-1);
-  transform: translateX(-50%);
-}
-
-.timeline-item {
-  position: relative;
-  margin-bottom: 4rem;
-  padding: 0 2rem;
-}
-
-.timeline-item:nth-child(odd) {
-  text-align: right;
-}
-
-.timeline-item:nth-child(even) {
-  text-align: left;
-}
-
-.timeline-content {
-  background: var(--light);
-  color: var(--daik);
-  padding: 2rem;
-  border-radius: 1rem;
-  position: relative;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-}
-
-.timeline-year {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: var(--accent-1);
-  color: var(--light);
-  padding: 0.5rem 1rem;
-  border-radius: 2rem;
-  font-weight: 600;
-  z-index: 2;
-}
-
-.timeline-item:nth-child(odd) .timeline-year {
-  left: -100px;
-}
-
-.timeline-item:nth-child(even) .timeline-year {
-  right: -100px;
-}
-
-.timeline-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.timeline-company {
-  color: var(--accent-1);
-  font-weight: 600;
-  margin-bottom: 1rem;
-}
-
-.timeline-description {
-  line-height: 1.6;
-  opacity: 0.8;
-}
-
-.cta-section {
-  width: 100%;
-  max-width: 1400px;
-  padding: 6rem 2rem;
-  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-  color: var(--light);
-  text-align: center;
-  margin: 0 auto;
-}
-
-.cta-content h2 {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.cta-content p {
-  font-size: 1.25rem;
-  margin-bottom: 2rem;
-  opacity: 0.9;
-}
-
-.cta-buttons {
-  display: flex;
-  gap: 1rem;
   justify-content: center;
   flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
 }
 
-.cta-button {
-  padding: 1rem 2rem;
-  border: 2px solid var(--light);
-  background: transparent;
+.cta-actions a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 1rem;
+  border: 1px solid rgba(245, 241, 232, 0.18);
+  border-radius: 999px;
   color: var(--light);
-  text-decoration: none;
-  border-radius: 2rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: transform 0.25s ease, background 0.25s ease, color 0.25s ease;
 }
 
-.cta-button:hover {
-  background: var(--light);
-  color: var(--daik);
+.cta-actions a:hover {
+  transform: translateY(-2px);
+  background: var(--accent-1);
+  color: var(--dark);
 }
 
-.cta-button.primary {
-  background: var(--light);
-  color: var(--daik);
-}
-
-.cta-button.primary:hover {
-  background: transparent;
-  color: var(--light);
-}
-
-@media (max-width: 768px) {
-  .about-page {
-    align-items: stretch;
-  }
-
-  .about-hero {
-    max-width: 100%;
-    padding-top: 100px;
-  }
-
-  .hero-title {
-    font-size: 2.5rem;
-  }
-
-  .hero-subtitle {
-    font-size: 1.2rem;
-  }
-
-  .intro-section,
-  .stats-section,
-  .skills-section,
-  .timeline-section,
-  .cta-section {
-    max-width: 100%;
-    padding: 4rem 1rem;
-  }
-
-  .intro-content {
+@media (max-width: 980px) {
+  .studio-hero {
     grid-template-columns: 1fr;
-    gap: 2rem;
+    min-height: auto;
+    padding-top: 7rem;
   }
 
-  .timeline::before {
-    left: 2rem;
+  .desktop-three-stage {
+    display: none;
   }
 
-  .timeline-item {
-    padding-left: 4rem;
-    text-align: left !important;
+  .mobile-three-stage {
+    display: block;
+    width: min(100%, 34rem);
+    margin: 0 auto;
   }
 
-  .timeline-year {
-    left: 0 !important;
-    right: auto !important;
-    transform: translateX(-50%);
+  .method-grid,
+  .process-list,
+  .toolkit-grid,
+  .outcome-grid {
+    grid-template-columns: 1fr;
   }
 
-  .cta-buttons {
-    flex-direction: column;
-    align-items: center;
+  .process-step {
+    min-height: 13rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .studio-hero,
+  .studio-section,
+  .studio-cta {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .studio-hero h1 {
+    font-size: clamp(2.6rem, 15vw, 4.4rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-three-stage,
+  .studio-reveal {
+    will-change: auto;
   }
 }
 </style>

@@ -1,575 +1,590 @@
 <script setup>
-import gsap from 'gsap';
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Lenis from 'lenis';
-import { onMounted, onUnmounted,ref } from 'vue';
-import {useRouter} from 'vue-router';
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import Lenis from 'lenis'
+import { defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue'
+import GridParticleBackground from '../Component/GridParticleBackground.vue'
+import natureImage from '../assets/nature-1920.jpg'
+import lakeImage from '../assets/lake-1920.jpg'
+import mountainImage from '../assets/mountain-1920.jpg'
+import landscapeImage from '../assets/landscape-1920.jpg'
+import { capabilityCards } from '../data/capabilityCards'
 
-//响应式数据控制不同部分的显示
-// const showNav = ref(true);
-// const showMain = ref(true);
-// const showRouterView = ref(true);
+const ThreeCardUniverse = defineAsyncComponent(() => import('../Component/ThreeCardUniverse.vue'))
 
-// 移除导航相关代码，现在使用共享的Navigation组件
+const mediaTextures = [
+  { src: natureImage, alt: 'Nature texture for strategy card', label: 'Research Terrain' },
+  { src: lakeImage, alt: 'Lake texture for interface card', label: 'Interface Field' },
+  { src: mountainImage, alt: 'Mountain texture for delivery card', label: 'Delivery Ridge' },
+  { src: landscapeImage, alt: 'Landscape texture for the dark stage', label: 'People Learn Stage' },
+]
 
-// 实现 smoothStep 函数
-const smoothStep = (p) => p * p * (3 - 2 * p);
+const stageMetrics = capabilityCards.map((card) => ({
+  number: card.number,
+  title: card.title,
+  text: card.items.join(' / '),
+  accent: card.accent,
+}))
 
-// 创建响应式引用
-let lenis = null;
+const capabilityNotes = [
+  {
+    label: 'Signal',
+    text: 'Research frames the field before layout, motion, or code starts competing for attention.',
+  },
+  {
+    label: 'System',
+    text: 'Interface rules turn the card language into repeatable spacing, rhythm, and transitions.',
+  },
+  {
+    label: 'Motion',
+    text: 'Motion gives the system presence without turning the interface into decoration.',
+  },
+  {
+    label: 'Delivery',
+    text: 'Delivery keeps the final experience stable, responsive, and ready to inspect in the browser.',
+  },
+]
 
-// 提取通用的动画逻辑
-const updateCardPosition = (cardId, progress, index) => {
-  const delay = index * 0.9;
-  const cardProgress = gsap.utils.clamp(0, 1, (progress - delay * 0.1) / (1 - delay * 0.1));
+const homeRoot = ref(null)
+const desktopStageActive = ref(false)
+let lenis = null
+let ctx = null
+let backgroundCleanup = null
+let stageMedia = null
 
-  const y = gsap.utils.interpolate("0%", "250%", smoothStep(cardProgress));
-  const scale = gsap.utils.interpolate(1, 0.75, smoothStep(cardProgress));
+const syncStageMedia = () => {
+  desktopStageActive.value = stageMedia?.matches ?? false
+}
 
-  let x = "0%";
-  let rotation = 0;
+const tickLenis = (time) => {
+  lenis?.raf(time * 1000)
+}
 
-  if (index === 0) {
-    x = gsap.utils.interpolate("0%", "90%", smoothStep(cardProgress));
-    rotation = gsap.utils.interpolate(0, -15, smoothStep(cardProgress));
-  } else if (index === 2) {
-    x = gsap.utils.interpolate("0%", "-90%", smoothStep(cardProgress));
-    rotation = gsap.utils.interpolate(0, 15, smoothStep(cardProgress));
+const setupPointerBackground = () => {
+  const root = homeRoot.value
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  if (!root || reduceMotion) return null
+
+  const xTo = gsap.quickTo(root, '--bg-x', { duration: 0.7, ease: 'power3.out' })
+  const yTo = gsap.quickTo(root, '--bg-y', { duration: 0.7, ease: 'power3.out' })
+  const limeTo = gsap.quickTo(root, '--bg-lime', { duration: 0.55, ease: 'sine.out' })
+  const warmTo = gsap.quickTo(root, '--bg-warm', { duration: 0.55, ease: 'sine.out' })
+  const coolTo = gsap.quickTo(root, '--bg-cool', { duration: 0.55, ease: 'sine.out' })
+
+  const handlePointerMove = (event) => {
+    const rect = root.getBoundingClientRect()
+    const x = gsap.utils.clamp(0, 100, ((event.clientX - rect.left) / rect.width) * 100)
+    const y = gsap.utils.clamp(0, 100, ((event.clientY - rect.top) / rect.height) * 100)
+    const center = 1 - Math.min(1, Math.hypot(x - 50, y - 44) / 64)
+
+    xTo(x)
+    yTo(y)
+    limeTo(0.12 + center * 0.11)
+    warmTo(0.08 + (x / 100) * 0.08)
+    coolTo(0.09 + ((100 - x) / 100) * 0.1)
   }
 
-  gsap.set(cardId, {
-    y,
-    x,
-    rotation,
-    scale,
-  });
-};
+  const handlePointerLeave = () => {
+    xTo(50)
+    yTo(20)
+    limeTo(0.14)
+    warmTo(0.08)
+    coolTo(0.1)
+  }
+
+  root.addEventListener('pointermove', handlePointerMove)
+  root.addEventListener('pointerleave', handlePointerLeave)
+
+  return () => {
+    root.removeEventListener('pointermove', handlePointerMove)
+    root.removeEventListener('pointerleave', handlePointerLeave)
+    handlePointerLeave()
+  }
+}
 
 onMounted(() => {
-  // 初始化 ScrollTrigger 插件
-  gsap.registerPlugin(ScrollTrigger);
+  gsap.registerPlugin(ScrollTrigger)
 
-  // 初始化 Lenis 平滑滚动
-  lenis = new Lenis();
-  lenis.on('scroll', ScrollTrigger.update);
+  const root = homeRoot.value
+  if (!root) return
 
-  gsap.ticker.add((time) => {
-    lenis.raf(time * 1000);
-  });
+  stageMedia = window.matchMedia('(min-width: 981px)')
+  syncStageMedia()
+  stageMedia.addEventListener('change', syncStageMedia)
 
-  gsap.ticker.lagSmoothing(0);
+  lenis = new Lenis({
+    lerp: 0.085,
+    smoothWheel: true,
+  })
+  lenis.on('scroll', ScrollTrigger.update)
+  gsap.ticker.add(tickLenis)
+  gsap.ticker.lagSmoothing(0)
+  backgroundCleanup = setupPointerBackground()
 
-  // 处理 hero 区域的动画
-  const heroScrollTrigger = ScrollTrigger.create({
-    trigger: ".hero",
-    start: "top top",
-    end: "75% top",
-    scrub: 1,
-    onUpdate: (self) => {
-      const progress = self.progress;
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-      const heroCardsContainerOpacity = gsap.utils.interpolate(1, 0.5, smoothStep(progress));
-      gsap.set(".hero-cards", {
-        opacity: heroCardsContainerOpacity
-      });
-
-      ["#hero-card-1", "#hero-card-2", "#hero-card-3"].forEach((cardId, index) => {
-        updateCardPosition(cardId, progress, index);
-      });
+  ctx = gsap.context(() => {
+    if (reduceMotion) {
+      gsap.set('.home-reveal', { autoAlpha: 1, y: 0 })
+      return
     }
-  });
 
-  // 处理 services 区域的动画
-  const servicesScrollTrigger = ScrollTrigger.create({
-    trigger: ".services",
-    start: "top top",
-    end: `+=${window.innerHeight * 4}px`,
-    pin: ".services",
-    pinSpacing: true,
-  });
+    gsap.timeline({ defaults: { ease: 'power3.out' } })
+      .from('.hero-copy', { autoAlpha: 0, y: 32, duration: 0.75 }, 0)
+      .from('.page-three-stage', { autoAlpha: 0, scale: 1.02, duration: 1.1 }, 0.08)
+      .from('.stage-metric', { autoAlpha: 0, y: 20, duration: 0.55, stagger: 0.08 }, 0.28)
 
-  // 处理 services-header 和 cards 动画
-  const servicesHeaderCardTrigger = ScrollTrigger.create({
-    trigger: ".services",
-    start: "top bottom",
-    end: `+=${window.innerHeight * 4}px`,
-    onUpdate: (self) => {
-      const progress = self.progress;
-      const headerProgress = gsap.utils.clamp(0, 1, progress / 0.9);
-      const headerY = gsap.utils.interpolate("400%", "0%", smoothStep(headerProgress));
-      gsap.set(".services-header", {
-        y: headerY,
-      });
+    gsap.utils.toArray('.home-reveal').forEach((block) => {
+      gsap.from(block, {
+        autoAlpha: 0,
+        y: 42,
+        duration: 0.72,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: block,
+          start: 'top 84%',
+          toggleActions: 'play none none reverse',
+        },
+      })
+    })
+  }, root)
+})
 
-      ["#card-1", "#card-2", "#card-3"].forEach((cardId, index) => {
-        const cardProgress = gsap.utils.clamp(0, 1, (progress - index * 0.5 * 0.1) / 0.9);
-        const innerCard = document.querySelector(`${cardId} .flip-card-inner`);
-
-        let y, scale, opacity, x, rotate, rotationY;
-
-        if (cardProgress < 0.4) {
-          const normalizedProgress = cardProgress / 0.4;
-          y = gsap.utils.interpolate("-100%", "-50%", smoothStep(normalizedProgress));
-          scale = gsap.utils.interpolate(0.25, 0.75, smoothStep(normalizedProgress));
-          opacity = smoothStep(normalizedProgress);
-        } else if (cardProgress < 0.6) {
-          const normalizedProgress = (cardProgress - 0.4) / 0.2;
-          y = gsap.utils.interpolate("-50%", "0%", smoothStep(normalizedProgress));
-          scale = gsap.utils.interpolate(0.75, 1, smoothStep(normalizedProgress));
-          opacity = 1;
-        } else {
-          y = "0%";
-          scale = 1;
-          opacity = 1;
-        }
-
-        if (cardProgress < 0.6) {
-          x = index === 0 ? "100%" : index === 1 ? "0%" : "-100%";
-          rotate = index === 0 ? -5 : index === 1 ? 0 : 5;
-          rotationY = 0;
-        } else if (cardProgress < 1) {
-          const normalizedProgress = (cardProgress - 0.6) / 0.4;
-          x = gsap.utils.interpolate(index === 0 ? "100%" : index === 1 ? "0%" : "-100%", "0%", smoothStep(normalizedProgress));
-          rotate = gsap.utils.interpolate(index === 0 ? -5 : index === 1 ? 0 : 5, 0, smoothStep(normalizedProgress));
-          rotationY = smoothStep(normalizedProgress) * 180;
-        } else {
-          x = "0%";
-          rotate = 0;
-          rotationY = 180;
-        }
-
-        gsap.set(cardId, {
-          y,
-          x,
-          rotate,
-          scale,
-          opacity,
-        });
-
-        if (innerCard) {
-          gsap.set(innerCard, {
-            rotationY,
-          });
-        }
-      });
-    }
-  });
-
-  // 清理函数
-  onUnmounted(() => {
-    lenis?.destroy();
-    ScrollTrigger.getAll().forEach(trigger => trigger.kill());
-  });
-});
+onUnmounted(() => {
+  stageMedia?.removeEventListener('change', syncStageMedia)
+  stageMedia = null
+  gsap.ticker.remove(tickLenis)
+  lenis?.destroy()
+  lenis = null
+  backgroundCleanup?.()
+  backgroundCleanup = null
+  ctx?.revert()
+  ctx = null
+})
 </script>
 
 <template>
-
-  <section class="hero">
-    <div class="hero-cards">
-      <div class="card" id="hero-card-1">
-        <div class="card-title">
-          <span>Plan</span>
-          <span>01</span>
-        </div>
-        <div class="card-title">
-          <span>01</span>
-          <span>Plan</span>
-        </div>
-      </div>
-      <div class="card" id="hero-card-2">
-        <div class="card-title">
-          <span>Plan</span>
-          <span>02</span>
-        </div>
-        <div class="card-title">
-          <span>02</span>
-          <span>Plan</span>
-        </div>
-      </div>
-      <div class="card" id="hero-card-3">
-        <div class="card-title">
-          <span>Plan</span>
-          <span>03</span>
-        </div>
-        <div class="card-title">
-          <span>03</span>
-          <span>Plan</span>
-        </div>
-      </div>
+  <main ref="homeRoot" class="home-page dark-stage-page">
+    <div class="page-grid-stage" aria-hidden="true">
+      <GridParticleBackground variant="home" :intensity="0.86" />
     </div>
-  </section>
 
-  <section class="about">
-    <h1>Keep scrolling - we'll keep adding content</h1>
-  </section>
-
-  <section class="services">
-    <div class="services-header">
-      <h1>Services</h1>
+    <div v-if="desktopStageActive" class="page-three-stage desktop-three-stage" aria-hidden="true">
+      <ThreeCardUniverse
+        class="home-three-universe"
+        :cards="capabilityCards"
+        :media-textures="mediaTextures"
+        variant="hero"
+        quality="full"
+        layout="page-stage"
+        :intensity="0.92"
+        aria-hidden="true"
+      />
     </div>
-  </section>
 
-  <section class="cards">
-    <div class="cards-container">
-      <div class="card" id="card-1">
-        <div class="card-wrapper">
-          <div class="flip-card-inner">
-            <div class="flip-card-front">
-              <div class="card-title">
-                <span>Plan</span>
-                <span>01</span>
-              </div>
-              <div class="card-title">
-                <span>01</span>
-                <span>Plan</span>
-              </div>
-            </div>
-            <div class="flip-card-back">
-              <div class="card-title">
-                <span>Plan</span>
-                <span>01</span>
-              </div>
-              <div class="card-copy">
-                <p>work</p>
-                <p>work</p>
-                <p>work</p>
-                <p>work</p>
-                <p>work</p>
-                <p>work</p>
-              </div>
-              <div class="card-title">
-                <span>01</span>
-                <span>Plan</span>
-              </div>
-            </div>
-          </div>
-        </div>
+    <section class="hero dark-stage-hero">
+      <div class="hero-copy">
+        <p class="eyebrow stage-eyebrow">People Learn Studio</p>
+        <h1 class="stage-title">Signal systems for learning interfaces.</h1>
+        <p class="hero-intro stage-copy">
+          Strategy, interface, motion, and delivery move as one spatial system across the dark stage.
+        </p>
       </div>
-      <div class="card" id="card-2">
-        <div class="card-wrapper">
-          <div class="flip-card-inner">
-            <div class="flip-card-front">
-              <div class="card-title">
-                <span>Plan</span>
-                <span>02</span>
-              </div>
-              <div class="card-title">
-                <span>02</span>
-                <span>Plan</span>
-              </div>
-            </div>
-            <div class="flip-card-back">
-              <div class="card-title">
-                <span>Plan</span>
-                <span>02</span>
-              </div>
-              <div class="card-copy">
-                <p>work</p>
-                <p>work</p>
-                <p>work</p>
-                <p>work</p>
-                <p>work</p>
-                <p>work</p>
-              </div>
-              <div class="card-title">
-                <span>02</span>
-                <span>Plan</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="card" id="card-3">
-        <div class="card-wrapper">
-          <div class="flip-card-inner">
-            <div class="flip-card-front">
-              <div class="card-title">
-                <span>Plan</span>
-                <span>03</span>
-              </div>
-              <div class="card-title">
-                <span>03</span>
-                <span>Plan</span>
-              </div>
-            </div>
-            <div class="flip-card-back">
-              <div class="card-title">
-                <span>Plan</span>
-                <span>03</span>
-              </div>
-              <div class="card-copy">
-                <p>work</p>
-                <p>work</p>
-                <p>work</p>
-                <p>work</p>
-                <p>work</p>
-                <p>work</p>
-              </div>
-              <div class="card-title">
-                <span>03</span>
-                <span>Plan</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <section class="outro">
-    <h1>A working demo of this example can be found</h1>
-  </section>
+      <div v-if="!desktopStageActive" class="mobile-three-stage" aria-hidden="true">
+        <ThreeCardUniverse
+          :cards="capabilityCards"
+          :media-textures="mediaTextures"
+          variant="hero"
+          quality="fallback"
+          layout="local-stage"
+          :intensity="0.9"
+        />
+      </div>
+
+      <div class="stage-metrics" aria-label="Capability summary">
+        <article
+          v-for="metric in stageMetrics"
+          :key="metric.title"
+          class="stage-metric"
+          :style="{ '--metric-accent': metric.accent }"
+        >
+          <span>{{ metric.number }}</span>
+          <strong>{{ metric.title }}</strong>
+          <p>{{ metric.text }}</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="capability-runway home-section content-panel">
+      <div class="section-heading home-reveal">
+        <p class="eyebrow stage-eyebrow">System</p>
+        <h2>The card language stays consistent after the first scroll.</h2>
+      </div>
+
+      <div class="capability-list">
+        <article
+          v-for="card in capabilityCards"
+          :key="card.id"
+          class="capability-row home-reveal"
+          :style="{ '--row-accent': card.accent }"
+        >
+          <span class="capability-row__number">{{ card.number }}</span>
+          <div>
+            <h3>{{ card.title }}</h3>
+            <p>{{ card.summary }}</p>
+          </div>
+          <ul>
+            <li v-for="item in card.items" :key="item">{{ item }}</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="home-notes home-section content-panel">
+      <div class="section-heading home-reveal">
+        <p class="eyebrow stage-eyebrow">Motion</p>
+        <h2>A quieter continuation for the 3D-first stage.</h2>
+      </div>
+
+      <div class="note-grid">
+        <article
+          v-for="note in capabilityNotes"
+          :key="note.label"
+          class="note-item home-reveal"
+        >
+          <span>{{ note.label }}</span>
+          <p>{{ note.text }}</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="home-outro content-panel">
+      <div class="home-reveal">
+        <p class="eyebrow stage-eyebrow">Delivery</p>
+        <h2>Vue, GSAP, and Three.js working from the same visual system.</h2>
+      </div>
+    </section>
+  </main>
 </template>
 
 <style scoped>
-*{
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* 导航样式已移至Navigation组件 */
-
-section{
+.home-page {
+  --bg-x: 50;
+  --bg-y: 20;
+  --bg-lime: 0.14;
+  --bg-warm: 0.08;
+  --bg-cool: 0.1;
   position: relative;
-  width: 100vw;
-  height: 100svh;
-  padding: 2rem;
-  overflow: hidden;
-}
-
-.hero{
-  background-color: var(--light);
-  color: var(--daik);
-  padding-top: 80px; /* 为固定导航栏留出空间 */
-}
-
-.about,
-.outro{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: var(--daik);
+  overflow-x: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(
+      circle at calc(var(--bg-x) * 1%) calc(var(--bg-y) * 1%),
+      rgba(var(--accent-1-rgb), var(--bg-lime)),
+      transparent min(30rem, 58vw)
+    ),
+    radial-gradient(
+      circle at calc((100 - var(--bg-x)) * 1%) calc((var(--bg-y) + 22) * 1%),
+      rgba(255, 107, 74, var(--bg-warm)),
+      transparent min(28rem, 54vw)
+    ),
+    radial-gradient(
+      circle at calc((var(--bg-x) + 12) * 1%) calc((100 - var(--bg-y)) * 1%),
+      rgba(122, 168, 255, var(--bg-cool)),
+      transparent min(30rem, 60vw)
+    ),
+    var(--dark);
   color: var(--light);
 }
 
-.hero-cards{
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  width: 35%;
-  justify-content: center;
-  gap: 1rem;
+.home-page::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.18;
+  background-image:
+    linear-gradient(90deg, rgba(245, 241, 232, 0.08) 1px, transparent 1px),
+    linear-gradient(rgba(245, 241, 232, 0.06) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(180deg, #000, transparent 74%);
 }
 
-.hero-cards .card{
-  flex: 1;
+.hero,
+.home-section,
+.home-outro {
   position: relative;
-  aspect-ratio: 5/7;
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.card-title{
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-}
-
-.hero-cards .card span{
-  font-size: 0.7rem;
-}
-
-.hero-cards .card#hero-card-1{
-  background-color: var(--accent-1);
-  transform-origin: top right;
   z-index: 2;
 }
-.hero-cards .card#hero-card-2{
-  background-color: var(--accent-2);
+
+.page-three-stage {
+  position: absolute;
+  inset: 0;
   z-index: 1;
-}
-.hero-cards .card#hero-card-3{
-  background-color: var(--accent-3);
-  transform-origin: top left;
-  z-index: 0;
-}
-
-.services{
-  padding: 8rem 2rem;
-}
-
-.services-header{
-  position: relative;
-  width: 100%;
-  text-align: center;
-  transform: translateY(400%);
-  will-change: transform;
-}
-
-.cards{
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100svh;
-  display: flex;
-  justify-content: center;
-  z-index: 0;
-  background-color: var(--light);
-  color: var(--daik);
+  overflow: hidden;
   pointer-events: none;
 }
 
-.cards-container{
+.mobile-three-stage {
+  display: none;
+  grid-area: mobile-stage;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(24rem, 0.72fr) minmax(36rem, 1.28fr);
+  grid-template-areas:
+    "copy ."
+    "metrics .";
+  align-items: center;
+  min-height: 100svh;
+  gap: clamp(2rem, 4.5vw, 5rem);
+  padding: 7rem var(--section-x) 3rem;
+}
+
+.hero-copy {
+  grid-area: copy;
+  max-width: 43rem;
+}
+
+.eyebrow {
+  margin-bottom: 1rem;
+  color: var(--accent-1);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hero h1,
+.section-heading h2,
+.home-outro h2 {
+  margin: 0;
+  color: var(--light);
+  font-size: clamp(2.6rem, 4.8vw, 4.9rem);
+  line-height: 0.96;
+  font-weight: 650;
+  letter-spacing: 0;
+}
+
+.hero-intro,
+.section-heading p:not(.eyebrow),
+.capability-row p,
+.note-item p {
+  color: rgba(245, 241, 232, 0.7);
+}
+
+.hero-intro {
+  max-width: 36rem;
+  margin-top: 1.35rem;
+  font-size: clamp(1rem, 1.4vw, 1.18rem);
+}
+
+.home-three-universe {
+  min-height: 100%;
+}
+
+.stage-metrics {
+  grid-area: metrics;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.stage-metric {
+  display: grid;
+  grid-template-columns: 3.2rem minmax(0, 1fr);
+  gap: 0.25rem 1rem;
+  padding: 0.9rem 0;
+  border-top: 1px solid rgba(245, 241, 232, 0.12);
+}
+
+.stage-metric span {
+  grid-row: span 2;
+  color: var(--metric-accent);
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.stage-metric strong {
+  color: var(--light);
+  font-size: 1.04rem;
+}
+
+.stage-metric p {
+  margin: 0;
+  color: rgba(245, 241, 232, 0.56);
+  font-size: 0.86rem;
+}
+
+.home-section {
+  padding: 7rem var(--section-x);
+}
+
+.content-panel {
+  background:
+    linear-gradient(180deg, rgba(8, 8, 7, 0.58), rgba(8, 8, 7, 0.5)),
+    rgba(8, 8, 7, 0.3);
+  backdrop-filter: blur(2px);
+}
+
+.section-heading {
+  max-width: 64rem;
+  margin-bottom: clamp(2.5rem, 5vw, 5rem);
+}
+
+.section-heading h2,
+.home-outro h2 {
+  font-size: clamp(2.4rem, 5.6vw, 5.5rem);
+}
+
+.section-heading p:not(.eyebrow) {
+  max-width: 42rem;
+  margin-top: 1rem;
+}
+
+.capability-list {
+  border-top: 1px solid rgba(245, 241, 232, 0.14);
+}
+
+.capability-row {
+  display: grid;
+  grid-template-columns: 5rem minmax(0, 1fr) minmax(13rem, 0.44fr);
+  gap: clamp(1rem, 4vw, 4rem);
+  align-items: start;
+  padding: clamp(1.25rem, 3vw, 2rem) 0;
+  border-bottom: 1px solid rgba(245, 241, 232, 0.14);
+}
+
+.capability-row__number {
+  color: var(--row-accent);
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.capability-row h3 {
+  margin: 0 0 0.75rem;
+  color: var(--light);
+  font-size: clamp(1.9rem, 4.5vw, 4rem);
+  line-height: 1;
+}
+
+.capability-row p {
+  max-width: 45rem;
+  margin: 0;
+  font-size: clamp(1rem, 1.4vw, 1.15rem);
+}
+
+.capability-row ul {
+  display: grid;
+  gap: 0.45rem;
+  list-style: none;
+}
+
+.capability-row li {
+  padding: 0.58rem 0.7rem;
+  border: 1px solid rgba(245, 241, 232, 0.12);
+  border-radius: 4px;
+  background: rgba(245, 241, 232, 0.055);
+  color: rgba(245, 241, 232, 0.76);
+  font-size: 0.82rem;
+  font-weight: 760;
+}
+
+.note-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  border: 1px solid rgba(245, 241, 232, 0.12);
+  background: rgba(245, 241, 232, 0.12);
+}
+
+.note-item {
+  min-height: 15rem;
+  padding: 1.1rem;
+  background: #10100e;
+}
+
+.note-item span {
+  color: var(--accent-1);
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.note-item p {
+  margin: 5rem 0 0;
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+}
+
+.home-outro {
   display: flex;
+  min-height: 86svh;
+  align-items: center;
   justify-content: center;
-  align-items: center;
-  position: relative;
-  width: 75%;
-  height: 100%;
-  gap: 4rem;
+  padding: 7rem var(--section-x);
+  text-align: center;
 }
 
-.cards-container .card{
-  flex: 1;
-  position: relative;
-  aspect-ratio: 5/7;
-  perspective: 1000px;
-  pointer-events: auto;
+.home-outro > div {
+  max-width: 68rem;
 }
 
-.cards-container .card .card-wrapper{
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-  height: 100%;
-  animation: floating 2s ease-in-out infinite;
-}
-
-@keyframes floating {
-  0% {
-    transform: translate(-50%, -50%);
+@media (max-width: 980px) {
+  .hero {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "copy"
+      "mobile-stage"
+      "metrics";
+    min-height: auto;
+    padding-top: 7rem;
   }
-  50% {
-    transform: translate(-50%, -55%);
+
+  .desktop-three-stage {
+    display: none;
   }
-  100% {
-    transform: translate(-50%, -50%);
+
+  .mobile-three-stage {
+    display: block;
+    width: min(100%, 34rem);
+    margin: 0 auto;
+  }
+
+  .capability-row,
+  .note-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .capability-row {
+    gap: 1rem;
   }
 }
 
-#card-1 .card-wrapper{
-  animation-delay: 0s;
-}
-#card-2 .card-wrapper{
-  animation-delay: 0.25s;
-}
-#card-3 .card-wrapper{
-  animation-delay: 0.5s;
+@media (max-width: 640px) {
+  .hero,
+  .home-section,
+  .home-outro {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.6rem, 15vw, 4.4rem);
+  }
+
+  .stage-metric {
+    grid-template-columns: 2.6rem minmax(0, 1fr);
+  }
 }
 
-.flip-card-inner{
-  position: relative;
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
+@media (prefers-reduced-motion: reduce) {
+  .page-three-stage,
+  .home-reveal {
+    will-change: auto;
+  }
 }
-
-.flip-card-front,
-.flip-card-back{
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  border-radius: 1rem;
-}
-
-.flip-card-front{
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-}
-
-#card-1 .flip-card-front{
-  background-color: var(--accent-1);
-}
-#card-2 .flip-card-front{
-  background-color: var(--accent-2);
-}
-#card-3 .flip-card-front{
-  background-color: var(--accent-3);
-}
-
-.flip-card-back{
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 2rem;
-  background-color: #fff;
-  transform: rotateY(180deg);
-}
-
-#card-1 .flip-card-back{
-  background-color: var(--accent-1);
-  color: var(--light);
-}
-
-#card-2 .flip-card-back{
-  background-color: var(--accent-2);
-  color: var(--light);
-}
-
-#card-3 .flip-card-back{
-  background-color: var(--accent-3);
-  color: var(--light);
-}
-
-.card-copy{
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.card-copy p{
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 1rem;
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 0.25rem;
-  color: var(--light);
-  backdrop-filter: blur(10px);
-}
-
-#card-1{
-  transform: translateX(100%) translateY(-100%) rotate(-5deg) scale(0.25);
-  z-index: 2;
-}
-#card-2{
-  transform: translateX(0%) translateY(-100%) rotate(0deg) scale(0.25);
-  z-index: 1;
-}
-#card-3{
-  transform: translateX(-100%) translateY(-100%) rotate(5deg) scale(0.25);
-  z-index: 0;
-}
-
-.cards-container .card{
-  opacity: 0;
-}/**/
 </style>
